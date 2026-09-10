@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Инвестиционный терминал</title>
+<style>
+:root{
+  color-scheme:light;
+  --surface-1:#fcfcfb; --page:#f9f9f7;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --muted:#898781;
+  --gridline:#e1e0d9; --baseline:#c3c2b7;
+  --border:rgba(11,11,11,0.10);
+  --seq:#2a78d6; --seq-track:#cde2fb;
+  --delta-up:#006300; --delta-down:#d03b3b;
+  --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --surface-1:#1a1a19; --page:#0d0d0d;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --muted:#898781;
+    --gridline:#2c2c2a; --baseline:#383835;
+    --border:rgba(255,255,255,0.10);
+    --seq:#3987e5; --seq-track:#184f95;
+    --delta-up:#0ca30c; --delta-down:#d03b3b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --surface-1:#1a1a19; --page:#0d0d0d;
+  --text-primary:#ffffff; --text-secondary:#c3c2b7; --muted:#898781;
+  --gridline:#2c2c2a; --baseline:#383835;
+  --border:rgba(255,255,255,0.10);
+  --seq:#3987e5; --seq-track:#184f95;
+  --delta-up:#0ca30c; --delta-down:#d03b3b;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--page); color:var(--text-primary);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:20px 16px 60px}
+header{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:6px}
+h1{font-size:19px; margin:0; font-weight:650; letter-spacing:-.01em}
+.upd{color:var(--muted); font-size:12.5px; font-variant-numeric:tabular-nums}
+.spacer{flex:1}
+button{
+  font:inherit; font-size:13px; padding:6px 13px; cursor:pointer;
+  background:var(--surface-1); color:var(--text-primary);
+  border:1px solid var(--border); border-radius:7px;
+}
+button:hover{border-color:var(--baseline)}
+input{
+  font:inherit; font-size:13px; padding:6px 11px; width:130px;
+  background:var(--surface-1); color:var(--text-primary);
+  border:1px solid var(--border); border-radius:7px;
+}
+.card{
+  background:var(--surface-1); border:1px solid var(--border);
+  border-radius:11px; padding:16px; margin-top:14px;
+}
+table{width:100%; border-collapse:collapse}
+th{
+  text-align:right; font-weight:550; font-size:11.5px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.05em;
+  padding:0 10px 8px; border-bottom:1px solid var(--gridline);
+}
+th:first-child,td:first-child{text-align:left}
+th:last-child,td:last-child{text-align:left}
+td{padding:11px 10px; border-bottom:1px solid var(--gridline); font-variant-numeric:tabular-nums}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--gridline)}
+tbody tr:last-child td{border-bottom:none}
+.tk{font-weight:650}
+.nm{color:var(--muted); font-weight:400; font-size:12px; margin-left:7px}
+.up{color:var(--delta-up)} .down{color:var(--delta-down)}
+.meter{display:flex; align-items:center; gap:8px; justify-content:flex-end}
+.track{width:62px; height:6px; border-radius:3px; background:var(--seq-track); overflow:hidden}
+.fill{height:100%; border-radius:3px; background:var(--seq)}
+/* Статус несёт цветная точка, текст остаётся обычными чернилами:
+   warning/serious дают <3:1 на светлом фоне и в тексте нечитаемы. */
+.sig{font-size:12.5px; white-space:nowrap; display:flex; align-items:center; gap:7px}
+.dot{width:9px; height:9px; border-radius:50%; flex-shrink:0; background:var(--muted)}
+.s-good .dot{background:var(--good)}
+.s-warn .dot{background:var(--warning)}
+.s-serious .dot{background:var(--serious)}
+.s-crit .dot{background:var(--critical)}
+.x{color:var(--muted); padding:2px 7px; border-radius:5px; font-size:15px; line-height:1}
+.x:hover{color:var(--critical); background:var(--gridline)}
+.msg{color:var(--muted); padding:26px 4px; text-align:center}
+.err{color:var(--critical)}
+h2{font-size:15px; margin:0 0 3px; font-weight:650}
+.sub{color:var(--muted); font-size:12.5px; margin-bottom:15px}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:15px}
+.sec-t{
+  font-size:11.5px; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--muted); font-weight:550; margin:0 0 9px;
+}
+.kv{display:flex; justify-content:space-between; gap:12px; padding:4px 0; font-size:13px}
+.kv b{font-weight:600; font-variant-numeric:tabular-nums}
+.rng{height:6px; border-radius:3px; background:var(--seq-track); position:relative; margin:9px 0 5px}
+.rng i{position:absolute; top:-3px; width:3px; height:12px; border-radius:2px; background:var(--seq)}
+.hero{font-size:27px; font-weight:680; letter-spacing:-.02em; margin:2px 0}
+.chk{display:flex; gap:9px; padding:5px 0; font-size:13px; align-items:baseline}
+.chk span:first-child{flex-shrink:0}
+.chk em{color:var(--muted); font-style:normal; margin-left:auto; font-variant-numeric:tabular-nums}
+.news{padding:7px 0; border-bottom:1px solid var(--gridline); font-size:13px}
+.news:last-child{border-bottom:none}
+.news time{color:var(--muted); font-size:11.5px; display:block}
+.warn{
+  color:var(--serious); font-size:12.5px; padding:6px 0;
+}
+.src{color:var(--muted); font-size:11.5px; margin-top:13px}
+.dis{color:var(--muted); font-size:11.5px; margin-top:18px; text-align:center}
+.load{color:var(--muted); font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Инвестиционный терминал</h1>
+  <span class="upd" id="upd"></span>
+  <span class="spacer"></span>
+  <input id="add" placeholder="Тикер" autocomplete="off">
+  <button onclick="addT()">Добавить</button>
+  <button onclick="load()">Обновить</button>
+  <button onclick="theme()" id="th">Тема</button>
+</header>
+
+<div class="card">
+  <table>
+    <thead><tr>
+      <th>Тикер</th><th>Цена</th><th>Скоринг</th>
+      <th>Fair Value</th><th>Апсайд</th><th>Сигнал</th><th></th>
+    </tr></thead>
+    <tbody id="tb"><tr><td colspan="7" class="msg">Загружаю данные…</td></tr></tbody>
+  </table>
+  <div class="src" id="src"></div>
+</div>
+
+<div id="detail"></div>
+
+<div class="dis">Это аналитический инструмент, не инвестиционный совет.</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+
+// Сигнал -> статусный цвет. Цвет никогда не единственный носитель смысла:
+// в тексте сигнала всегда есть эмодзи и словесная метка.
+function sigClass(s){
+  if(!s) return 's-neutral';
+  if(s.includes('СИЛЬНЫЙ ЛОНГ')) return 's-good';
+  if(s.includes('ЛОНГ')) return 's-good';
+  if(s.includes('СИЛЬНЫЙ ШОРТ')) return 's-crit';
+  if(s.includes('ШОРТ')) return 's-serious';
+  if(s.includes('НАБЛЮДАТЬ')) return 's-warn';
+  return 's-neutral';
+}
+// en-US, а не ru-RU: доллар пишется с точкой-разделителем, как и в CLI-версии
+const money = v => v==null ? '—' : '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct   = v => v==null ? '—' : (v>=0?'+':'')+v.toFixed(1)+'%';
+function big(v){
+  if(v==null) return '—';
+  const a=Math.abs(v);
+  if(a>=1e12) return '$'+(v/1e12).toFixed(2)+' трлн';
+  if(a>=1e9)  return '$'+(v/1e9).toFixed(2)+' млрд';
+  if(a>=1e6)  return '$'+(v/1e6).toFixed(2)+' млн';
+  return money(v);
+}
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function load(){
+  $('#tb').innerHTML = '<tr><td colspan="7" class="msg">Загружаю данные…</td></tr>';
+  $('#detail').innerHTML = '';
+  let d;
+  try { d = await (await fetch('/api/watchlist')).json(); }
+  catch(e){
+    $('#tb').innerHTML = '<tr><td colspan="7" class="msg err">Сервер не отвечает</td></tr>';
+    return;
+  }
+  $('#upd').textContent = 'обновлено ' + d.updated;
+
+  if(!d.rows.length){
+    $('#tb').innerHTML = '<tr><td colspan="7" class="msg">Вотчлист пуст — добавьте тикер</td></tr>';
+  } else {
+    $('#tb').innerHTML = d.rows.map(r => {
+      if(!r.ok) return `<tr><td class="tk">${esc(r.ticker)}</td>
+        <td colspan="5" class="err">${esc(r.error)}</td>
+        <td><span class="x" onclick="rm(event,'${esc(r.ticker)}')">×</span></td></tr>`;
+      const w = Math.max(0, Math.min(100, (r.score/8000)*100));
+      const uc = r.upside==null ? '' : (r.upside>=0?'up':'down');
+      return `<tr onclick="detail('${esc(r.ticker)}')">
+        <td><span class="tk">${esc(r.ticker)}</span><span class="nm">${esc((r.name||'').slice(0,22))}</span></td>
+        <td>${money(r.price)}</td>
+        <td><div class="meter"><span>${r.score}</span>
+            <div class="track"><div class="fill" style="width:${w}%"></div></div></div></td>
+        <td>${money(r.fv)}</td>
+        <td class="${uc}">${pct(r.upside)}</td>
+        <td><div class="sig ${sigClass(r.signal)}"><span class="dot"></span>${esc(r.signal)}</div></td>
+        <td><span class="x" onclick="rm(event,'${esc(r.ticker)}')">×</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  const src = Object.entries(d.sources||{}).map(([k,v]) =>
+    k+': '+v.map(s => s.name+' — '+(s.ok?'доступен':'сбой')).join(', ')).join(' · ');
+  $('#src').textContent = src ? 'Источники данных · '+src : '';
+}
+
+async function detail(t){
+  $('#detail').innerHTML = '<div class="card"><span class="load">Загружаю '+esc(t)+'…</span></div>';
+  const d = await (await fetch('/api/ticker?t='+encodeURIComponent(t))).json();
+  if(!d.ok){
+    $('#detail').innerHTML = '<div class="card"><span class="err">'+esc(d.error)+'</span></div>';
+    return;
+  }
+  const f=d.fv, te=d.tech||{};
+  let rp = '';
+  if(d.range_pos!=null){
+    rp = `<div class="rng"><i style="left:calc(${d.range_pos.toFixed(0)}% - 1px)"></i></div>
+          <div class="kv"><span>${money(d.week52_low)}</span><span>${money(d.week52_high)}</span></div>`;
+  }
+  $('#detail').innerHTML = `<div class="card">
+    <h2>${esc(d.name)} · ${esc(d.ticker)}</h2>
+    <div class="sub">${esc(d.sector)} — ${esc(d.industry)}</div>
+
+    <div class="grid">
+      <div>
+        <p class="sec-t">Цена</p>
+        <div class="hero">${money(d.price)}</div>
+        ${rp}
+        <div class="kv"><span>Капитализация</span><b>${big(d.market_cap)}</b></div>
+        <div class="kv"><span>Бета</span><b>${d.beta==null?'—':d.beta.toFixed(2)}</b></div>
+      </div>
+
+      <div>
+        <p class="sec-t">Скоринг</p>
+        <div class="hero">${d.score}<span style="font-size:14px;color:var(--muted)"> / 8000</span></div>
+        <div class="sub">${esc(d.rating)}</div>
+        ${d.metrics.map(m => {
+          const v = m.value==null ? '—'
+            : (m.unit==='%' ? (m.value*100).toFixed(1)+'%' : m.value.toFixed(2)+'x');
+          return `<div class="kv"><span>${esc(m.name)}</span>
+            <b>${v}</b><em style="color:var(--muted);font-style:normal">${m.points>0?'+':''}${m.points}</em></div>`;
+        }).join('')}
+      </div>
+
+      <div>
+        <p class="sec-t">Справедливая стоимость</p>
+        <div class="hero ${f.upside==null?'':(f.upside>=0?'up':'down')}">${pct(f.upside)}</div>
+        <div class="sub">апсайд до базового сценария</div>
+        <div class="kv"><span>CCA (консенсус)</span><b>${money(f.cca)}</b></div>
+        <div class="kv"><span>DCF (упрощённый)</span><b>${money(f.dcf)}</b></div>
+        <div class="kv"><span>NAV (EV метод)</span><b>${money(f.nav)}</b></div>
+        <div class="kv" style="border-top:1px solid var(--gridline);margin-top:5px;padding-top:8px">
+          <span>🐻 Пессимистичный</span><b>${money(f.bear)}</b></div>
+        <div class="kv"><span>⚖️ Базовый</span><b>${money(f.base)}</b></div>
+        <div class="kv"><span>🐂 Оптимистичный</span><b>${money(f.bull)}</b></div>
+      </div>
+
+      ${te.available ? `<div>
+        <p class="sec-t">Технический анализ</p>
+        <div class="kv"><span>RSI (14)</span><b>${te.rsi} · ${esc(te.rsi_comment)}</b></div>
+        <div class="kv"><span>MACD</span><b>${te.macd} · ${esc(te.macd_trend)}</b></div>
+        <div class="kv"><span>Bollinger</span><b>${te.bb_low} / ${te.bb_mid} / ${te.bb_high}</b></div>
+        <div class="kv"><span>Позиция</span><b>${esc(te.bb_comment)}</b></div>
+      </div>` : ''}
+
+      <div>
+        <p class="sec-t">Чеклист</p>
+        ${d.checklist.map(c => `<div class="chk">
+          <span>${c.ok?'✅':'❌'}</span><span>${esc(c.label)}</span><em>${esc(c.actual)}</em></div>`).join('')}
+        ${d.warnings.map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+      </div>
+
+      <div>
+        <p class="sec-t">Новости</p>
+        ${d.news.length
+          ? d.news.map(n => `<div class="news"><time>${esc((n.date||'').slice(0,16))}</time>${esc(n.title)}</div>`).join('')
+          : '<div class="load">Новости временно недоступны</div>'}
+      </div>
+    </div>
+
+    <div style="margin-top:17px;padding-top:14px;border-top:1px solid var(--gridline)">
+      <p class="sec-t">Итоговый сигнал</p>
+      <div class="sig ${sigClass(d.signal)}" style="font-size:16px"><span class="dot"></span>${esc(d.signal)}</div>
+    </div>
+  </div>`;
+  $('#detail').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+async function addT(){
+  const v = $('#add').value.trim().toUpperCase();
+  if(!v) return;
+  await fetch('/api/add?t='+encodeURIComponent(v));
+  $('#add').value = '';
+  load();
+}
+async function rm(e,t){
+  e.stopPropagation();
+  await fetch('/api/remove?t='+encodeURIComponent(t));
+  load();
+}
+function theme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur==='dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+const saved = localStorage.getItem('theme');
+if(saved) document.documentElement.setAttribute('data-theme', saved);
+$('#add').addEventListener('keydown', e => { if(e.key==='Enter') addT(); });
+load();
+</script>
+</body>
+</html>
