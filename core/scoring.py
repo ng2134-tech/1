@@ -69,11 +69,15 @@ def score_short(s):
     if p < 10: return -100, "Повышенный ⚠️"
     return -300, "Высокий шорт ❌"
 
-def get_rating(score):
-    if score >= 6500: return "ОТЛИЧНАЯ ОЦЕНКА ✅✅"
-    if score >= 5000: return "ХОРОШАЯ ОЦЕНКА ✅"
-    if score >= 3500: return "СРЕДНЯЯ ОЦЕНКА ⚠️"
-    if score >= 2000: return "СЛАБАЯ ОЦЕНКА ❌"
+def get_rating(score, scored=8):
+    # Без данных скоринг = 0, но это не «плохо», а «неизвестно»: у крипты и
+    # фондов нет P/E и ROE в принципе. Иначе BTC получал бы вердикт
+    # «очень слабая оценка» — фактически ложный сигнал.
+    if scored < 4:      return "НЕДОСТАТОЧНО ДАННЫХ — методика неприменима"
+    if score >= 6500:   return "ОТЛИЧНАЯ ОЦЕНКА ✅✅"
+    if score >= 5000:   return "ХОРОШАЯ ОЦЕНКА ✅"
+    if score >= 3500:   return "СРЕДНЯЯ ОЦЕНКА ⚠️"
+    if score >= 2000:   return "СЛАБАЯ ОЦЕНКА ❌"
     return "ОЧЕНЬ СЛАБАЯ ОЦЕНКА ❌❌"
 
 def calculate_score(data: dict) -> dict:
@@ -86,10 +90,14 @@ def calculate_score(data: dict) -> dict:
     mg_s,  mg_c  = score_margin(data.get("margin"))
     sh_s,  sh_c  = score_short(data.get("short_pct"))
     total = pe_s + ps_s + ev_s + roe_s + roa_s + de_s + mg_s + sh_s
+    # Сколько метрик реально удалось оценить — от этого зависит, можно ли
+    # вообще трактовать итоговый балл.
+    scored = sum(1 for c in (pe_c, ps_c, ev_c, roe_c, roa_c, de_c, mg_c, sh_c)
+                 if c != "N/A")
     return {
         "pe": (pe_s, pe_c), "ps": (ps_s, ps_c),
         "ev_ebitda": (ev_s, ev_c), "roe": (roe_s, roe_c),
         "roa": (roa_s, roa_c), "de": (de_s, de_c),
         "margin": (mg_s, mg_c), "short": (sh_s, sh_c),
-        "total": total, "rating": get_rating(total),
+        "total": total, "scored": scored, "rating": get_rating(total, scored),
     }
