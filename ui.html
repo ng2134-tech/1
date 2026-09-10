@@ -272,7 +272,8 @@ async function detail(t){
       <div>
         <p class="sec-t">Чеклист</p>
         ${d.checklist.map(c => `<div class="chk">
-          <span>${c.ok?'✅':'❌'}</span><span>${esc(c.label)}</span><em>${esc(c.actual)}</em></div>`).join('')}
+          <span>${c.na?'<span style="color:var(--muted)">—</span>':(c.ok?'✅':'❌')}</span>
+          <span${c.na?' style="color:var(--muted)"':''}>${esc(c.label)}</span><em>${esc(c.actual)}</em></div>`).join('')}
         ${d.warnings.map(w => `<div class="warn">${esc(w)}</div>`).join('')}
       </div>
 
