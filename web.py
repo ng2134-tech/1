@@ -38,11 +38,14 @@ def _load():
     from core.registry   import REGISTRY
     import terminal as T          # переиспользуем вотчлист и analyze()
 
-    UI_PATH = here / "ui.html"
+    from core.paths import resource, FROZEN
+    UI_PATH = resource("ui.html")
     if not UI_PATH.exists():
         raise FileNotFoundError(
-            f"Рядом с web.py нет файла ui.html (ожидался тут: {UI_PATH}).\n"
-            "Скачайте проект целиком — web.py и ui.html должны лежать в одной папке."
+            f"Не найден ui.html (ожидался тут: {UI_PATH}).\n" +
+            ("Сборка повреждена — пересоберите exe скриптом build.py."
+             if FROZEN else
+             "Скачайте проект целиком — web.py и ui.html должны лежать в одной папке.")
         )
 
 
