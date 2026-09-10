@@ -39,7 +39,8 @@ def load_watchlist() -> list:
 
 def save_watchlist(tickers: list):
     WATCHLIST_PATH.parent.mkdir(exist_ok=True)
-    WATCHLIST_PATH.write_text(json.dumps(tickers, indent=2), encoding="utf-8")
+    # \n в конце — иначе каждый --add/--remove даёт лишний diff в git
+    WATCHLIST_PATH.write_text(json.dumps(tickers, indent=2) + "\n", encoding="utf-8")
 
 
 # ── анализ одного тикера (для параллельного запуска) ────────────
