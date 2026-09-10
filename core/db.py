@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # SQLite-кэш: котировки, скоринг, новости, история сигналов.
 import sqlite3, json, time
-from pathlib import Path
+from .paths import data_file
 
-DB_PATH = Path(__file__).parent.parent / "data" / "terminal.db"
+DB_PATH = data_file("terminal.db")
 
 def _conn():
-    DB_PATH.parent.mkdir(exist_ok=True)
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     c = sqlite3.connect(str(DB_PATH), check_same_thread=False)
     c.row_factory = sqlite3.Row
     return c
