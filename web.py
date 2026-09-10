@@ -15,14 +15,14 @@ from datetime import datetime
 from pathlib import Path
 
 PORT = 8765
-HTML = None   # читается в main()
+UI_PATH = None   # путь к ui.html, задаётся в _load()
 
 # Импорты держим в функции: при запуске двойным кликом ошибка на уровне
 # модуля закрыла бы окно раньше, чем её успели прочитать.
 def _load():
     global get_data, get_history, calculate_score, calculate_fair_value
     global generate_signal, calculate_technical, get_news
-    global init_db, save_signal, REGISTRY, T, HTML
+    global init_db, save_signal, REGISTRY, T, UI_PATH
 
     here = Path(__file__).parent
     if str(here) not in sys.path:
@@ -38,13 +38,18 @@ def _load():
     from core.registry   import REGISTRY
     import terminal as T          # переиспользуем вотчлист и analyze()
 
-    ui = here / "ui.html"
-    if not ui.exists():
+    UI_PATH = here / "ui.html"
+    if not UI_PATH.exists():
         raise FileNotFoundError(
-            f"Рядом с web.py нет файла ui.html (ожидался тут: {ui}).\n"
+            f"Рядом с web.py нет файла ui.html (ожидался тут: {UI_PATH}).\n"
             "Скачайте проект целиком — web.py и ui.html должны лежать в одной папке."
         )
-    HTML = ui.read_text(encoding="utf-8")
+
+
+def read_ui() -> str:
+    """Читаем ui.html на каждый запрос: иначе после git pull сервер продолжал бы
+    отдавать старую копию из памяти, и правки были бы не видны без перезапуска."""
+    return UI_PATH.read_text(encoding="utf-8")
 
 
 # Диапазоны графика: ключ -> (период yfinance, шаг свечей).
@@ -159,11 +164,15 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass  # не засоряем консоль
 
-    def _send(self, code, body, ctype="application/json; charset=utf-8"):
+    def _send(self, code, body, ctype="application/json; charset=utf-8",
+              no_cache=False):
         data = body if isinstance(body, bytes) else body.encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
+        if no_cache:
+            # Иначе браузер держит старую страницу и Ctrl+F5 становится обязательным
+            self.send_header("Cache-Control", "no-store, must-revalidate")
         self.end_headers()
         self.wfile.write(data)
 
@@ -172,7 +181,8 @@ class Handler(BaseHTTPRequestHandler):
         q = parse_qs(u.query)
 
         if u.path == "/":
-            return self._send(200, HTML, "text/html; charset=utf-8")
+            return self._send(200, read_ui(), "text/html; charset=utf-8",
+                              no_cache=True)
 
         if u.path == "/api/watchlist":
             wl = T.load_watchlist()
