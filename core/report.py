@@ -108,16 +108,21 @@ def generate_report(data, score, fv, sig, news, tech=None):
         print("  Новости временно недоступны")
 
     print("\n✅ ЧЕКЛИСТ")
-    chk = lambda c: "✅" if c else "❌"
+    # Прочерк, а не крест, когда данных нет: крест читается как «провалено».
+    def chk(cond, na=False):
+        return "—" if na else ("✅" if cond else "❌")
     ts, de_v, roe_v = score["total"], data.get("de"), data.get("roe")
-    print(f"  {chk(ts >= 5000)} Скоринг > 5000 баллов ({ts})")
-    print(f"  {chk(up is not None and up > 15)} Апсайд > 15% ({fmt(up,1) if up is not None else 'N/A'}%)")
-    print(f"  {chk(sp is not None and sp*100 < 5)} Short Interest < 5% ({f'{sp*100:.1f}%' if sp is not None else 'N/A'})")
-    print(f"  {chk(de_v is not None and de_v < 3)} D/E < 3x ({fmt(de_v) if de_v is not None else 'N/A'}x)")
-    print(f"  {chk(roe_v is not None and roe_v*100 > 10)} ROE > 10% ({f'{roe_v*100:.1f}%' if roe_v is not None else 'N/A'})")
+    no_data = score.get("scored", 8) < 4
+    print(f"  {chk(ts >= 5000, no_data)} Скоринг > 5000 баллов ({ts})")
+    print(f"  {chk(up is not None and up > 15, up is None)} Апсайд > 15% ({fmt(up,1)+'%' if up is not None else 'нет данных'})")
+    print(f"  {chk(sp is not None and sp*100 < 5, sp is None)} Short Interest < 5% ({f'{sp*100:.1f}%' if sp is not None else 'нет данных'})")
+    print(f"  {chk(de_v is not None and de_v < 3, de_v is None)} D/E < 3x ({fmt(de_v)+'x' if de_v is not None else 'нет данных'})")
+    print(f"  {chk(roe_v is not None and roe_v*100 > 10, roe_v is None)} ROE > 10% ({f'{roe_v*100:.1f}%' if roe_v is not None else 'нет данных'})")
     if price and high52:
         below = (high52 - price) / high52 * 100
         print(f"  {chk(below > 10)} Цена ниже 52-нед. максимума на 10%+ ({below:.0f}% ниже)")
+    else:
+        print("  — Цена ниже 52-нед. максимума на 10%+ (нет данных)")
 
     print("\n" + "=" * 62)
     print(f"  ИТОГОВЫЙ СИГНАЛ: {sig['signal']}")
