@@ -3,190 +3,186 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Инвестиционный терминал</title>
+<title>Терминал</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  color-scheme:light;
-  --surface-1:#fcfcfb; --page:#f9f9f7;
-  --text-primary:#0b0b0b; --text-secondary:#52514e; --muted:#898781;
-  --gridline:#e1e0d9; --baseline:#c3c2b7;
-  --border:rgba(11,11,11,0.10);
-  --seq:#2a78d6; --seq-track:#cde2fb;
-  --delta-up:#006300; --delta-down:#d03b3b;
-  --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
-}
-@media (prefers-color-scheme:dark){
-  :root:where(:not([data-theme="light"])){
-    color-scheme:dark;
-    --surface-1:#1a1a19; --page:#0d0d0d;
-    --text-primary:#ffffff; --text-secondary:#c3c2b7; --muted:#898781;
-    --gridline:#2c2c2a; --baseline:#383835;
-    --border:rgba(255,255,255,0.10);
-    --seq:#3987e5; --seq-track:#184f95;
-    --delta-up:#0ca30c; --delta-down:#d03b3b;
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --surface-1:#1a1a19; --page:#0d0d0d;
-  --text-primary:#ffffff; --text-secondary:#c3c2b7; --muted:#898781;
-  --gridline:#2c2c2a; --baseline:#383835;
-  --border:rgba(255,255,255,0.10);
-  --seq:#3987e5; --seq-track:#184f95;
-  --delta-up:#0ca30c; --delta-down:#d03b3b;
+  --bg:#ffffff; --ink:#0b0f12; --ink-2:#48555f; --muted:#7c8b96;
+  --accent:#1478c8; --accent-text:#0f5f9e;
+  --hairline:#e2edf4; --hairline-2:#c2d8e6;
+  --row-selected:#eef6fc; --row-hover:#f4f9fd;
+  --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
 }
 *{box-sizing:border-box}
 body{
-  margin:0; background:var(--page); color:var(--text-primary);
-  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Inter Tight",system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:1180px; margin:0 auto; padding:20px 16px 60px}
-header{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:6px}
-h1{font-size:19px; margin:0; font-weight:650; letter-spacing:-.01em}
-.upd{color:var(--muted); font-size:12.5px; font-variant-numeric:tabular-nums}
-.spacer{flex:1}
-button{
-  font:inherit; font-size:13px; padding:6px 13px; cursor:pointer;
-  background:var(--surface-1); color:var(--text-primary);
-  border:1px solid var(--border); border-radius:7px;
+.wrap{max-width:960px; margin:0 auto; padding:72px 32px 120px}
+
+/* хедер */
+.hd{display:flex; align-items:baseline; gap:20px; flex-wrap:wrap; margin-bottom:56px}
+h1{font-size:15px; margin:0; font-weight:500; letter-spacing:.14em; text-transform:uppercase}
+.sp{flex:1}
+.upd{color:var(--muted); font-size:11.5px; font-family:var(--mono); letter-spacing:.04em}
+#add{
+  font:12px/1.4 var(--mono); padding:5px 0; width:74px; background:transparent;
+  color:var(--ink); border:none; border-bottom:1px solid var(--hairline-2);
+  outline:none; text-transform:uppercase; letter-spacing:.08em;
 }
-button:hover{border-color:var(--baseline)}
-input{
-  font:inherit; font-size:13px; padding:6px 11px; width:130px;
-  background:var(--surface-1); color:var(--text-primary);
-  border:1px solid var(--border); border-radius:7px;
+#add:focus{border-bottom-color:var(--ink)}
+
+/* эйбрау-подписи */
+.eb{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.12em;
+  color:var(--muted); font-weight:400; margin:0 0 18px;
 }
-.card{
-  background:var(--surface-1); border:1px solid var(--border);
-  border-radius:11px; padding:16px; margin-top:14px;
-}
-table{width:100%; border-collapse:collapse}
+.eb-rule{padding-top:20px; border-top:1px solid var(--ink); margin:0 0 22px}
+
+/* вотчлист */
+table{width:100%; border-collapse:collapse; margin-bottom:104px}
 th{
-  text-align:right; font-weight:550; font-size:11.5px; color:var(--muted);
-  text-transform:uppercase; letter-spacing:.05em;
-  padding:0 10px 8px; border-bottom:1px solid var(--gridline);
+  text-align:right; font-weight:400; font-size:10.5px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.12em;
+  padding:0 0 12px 24px; border-bottom:1px solid var(--ink);
 }
-th:first-child,td:first-child{text-align:left}
-th:last-child,td:last-child{text-align:left}
-td{padding:11px 10px; border-bottom:1px solid var(--gridline); font-variant-numeric:tabular-nums}
+th:first-child{text-align:left; padding-left:0}
+td{padding:18px 0 18px 24px; border-bottom:1px solid var(--hairline); text-align:right}
+td:first-child{text-align:left; padding-left:0}
 tbody tr{cursor:pointer}
-tbody tr:hover{background:var(--gridline)}
-tbody tr:last-child td{border-bottom:none}
-.tk{font-weight:650}
-.nm{color:var(--muted); font-weight:400; font-size:12px; margin-left:7px}
-.up{color:var(--delta-up)} .down{color:var(--delta-down)}
-.meter{display:flex; align-items:center; gap:8px; justify-content:flex-end}
-.track{width:62px; height:6px; border-radius:3px; background:var(--seq-track); overflow:hidden}
-.fill{height:100%; border-radius:3px; background:var(--seq)}
-/* Статус несёт цветная точка, текст остаётся обычными чернилами:
-   warning/serious дают <3:1 на светлом фоне и в тексте нечитаемы. */
-.sig{font-size:12.5px; white-space:nowrap; display:flex; align-items:center; gap:7px}
-.dot{width:9px; height:9px; border-radius:50%; flex-shrink:0; background:var(--muted)}
-.s-good .dot{background:var(--good)}
-.s-warn .dot{background:var(--warning)}
-.s-serious .dot{background:var(--serious)}
-.s-crit .dot{background:var(--critical)}
-.x{color:var(--muted); padding:2px 7px; border-radius:5px; font-size:15px; line-height:1}
-.x:hover{color:var(--critical); background:var(--gridline)}
-.msg{color:var(--muted); padding:26px 4px; text-align:center}
-.err{color:var(--critical)}
-h2{font-size:15px; margin:0 0 3px; font-weight:650}
-.sub{color:var(--muted); font-size:12.5px; margin-bottom:15px}
-.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:15px}
-.sec-t{
-  font-size:11.5px; text-transform:uppercase; letter-spacing:.05em;
-  color:var(--muted); font-weight:550; margin:0 0 9px;
+tbody tr:hover{background:var(--row-hover)}
+tbody tr.sel{background:var(--row-selected)}
+.tk{font-family:var(--mono); font-size:14px; letter-spacing:.02em; font-weight:400}
+tr.sel .tk{font-weight:500}
+.nm{color:var(--muted); font-size:12.5px; margin-left:12px}
+.num{font-family:var(--mono); font-size:13px}
+.num-2{font-family:var(--mono); font-size:13px; color:var(--ink-2)}
+.sig{font-size:11px; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap}
+.up{color:var(--accent-text)} .down{color:var(--ink)}
+.s-long{color:var(--accent-text)} .s-watch{color:var(--muted)}
+.s-hold{color:var(--ink-2)} .s-short{color:var(--ink-2)} .s-sshort{color:var(--ink)}
+/* удаление — ненавязчиво, по ховеру строки */
+.del{width:1px; padding-left:14px}
+.del span{
+  font-family:var(--mono); color:var(--muted); opacity:0; cursor:pointer;
+  transition:opacity .1s; padding:0 2px;
 }
-.kv{display:flex; justify-content:space-between; gap:12px; padding:4px 0; font-size:13px}
-.kv b{font-weight:600; font-variant-numeric:tabular-nums}
-.rng{height:6px; border-radius:3px; background:var(--seq-track); position:relative; margin:9px 0 5px}
-.rng i{position:absolute; top:-3px; width:3px; height:12px; border-radius:2px; background:var(--seq)}
-.hero{font-size:27px; font-weight:680; letter-spacing:-.02em; margin:2px 0}
-.chk{display:flex; gap:9px; padding:5px 0; font-size:13px; align-items:baseline}
-.chk span:first-child{flex-shrink:0}
-.chk em{color:var(--muted); font-style:normal; margin-left:auto; font-variant-numeric:tabular-nums}
-.news{padding:7px 0; border-bottom:1px solid var(--gridline); font-size:13px}
-.news:last-child{border-bottom:none}
-.news time{color:var(--muted); font-size:11.5px; display:block}
-.warn{
-  color:var(--serious); font-size:12.5px; padding:6px 0;
+tr:hover .del span{opacity:1}
+.del span:hover{color:var(--ink)}
+.msg{color:var(--muted); font-size:13px; padding:26px 0; text-align:center}
+.err{color:var(--ink-2); font-family:var(--mono); font-size:12px}
+
+/* карточка инструмента */
+.inst{display:flex; align-items:flex-end; gap:28px; flex-wrap:wrap; margin-bottom:8px}
+.inst-tk{font-family:var(--mono); font-size:12px; color:var(--muted); letter-spacing:.08em; margin-bottom:10px}
+h2{font-size:34px; margin:0; font-weight:500; letter-spacing:-.025em; line-height:1.05}
+.inst-sub{color:var(--muted); font-size:12.5px; margin-top:10px}
+.inst-r{text-align:right}
+.price{font-family:var(--mono); font-size:34px; font-weight:400; letter-spacing:-.03em; line-height:1}
+.price-sub{font-family:var(--mono); font-size:13px; margin-top:10px}
+
+/* график */
+.chartbox{position:relative; margin-top:40px}
+.chartbox.loading svg{opacity:.4}
+#chart svg{display:block; width:100%; height:220px; overflow:visible}  /* точка последнего значения стоит на границе viewBox */
+.ylab{
+  position:absolute; right:0; transform:translateY(-50%); pointer-events:none;
+  font-family:var(--mono); font-size:10.5px; color:var(--muted);
+  /* вертикальные отступы, иначе кривая перечёркивает подпись, попав на деление */
+  background:var(--bg); padding:2px 0 2px 6px;
 }
-.src{color:var(--muted); font-size:11.5px; margin-top:13px}
-.dis{color:var(--muted); font-size:11.5px; margin-top:18px; text-align:center}
-.load{color:var(--muted); font-size:12.5px}
-.chartbox{position:relative; margin-top:4px}
-.ranges{display:flex; gap:6px; margin:0 0 10px}
-.ranges button{padding:4px 11px; font-size:12.5px; border-radius:6px}
-.ranges button[aria-pressed="true"]{
-  background:var(--seq); color:#fff; border-color:var(--seq);
+.xlab{
+  position:absolute; top:202px; pointer-events:none; white-space:nowrap;
+  font-family:var(--mono); font-size:10.5px; color:var(--muted);
 }
-.chart{width:100%; height:250px; position:relative}
-.chart svg{display:block; width:100%; height:100%}
-.chart.loading svg{opacity:.45}
-.tip{
-  position:absolute; pointer-events:none; opacity:0; transition:opacity .1s;
-  background:var(--surface-1); border:1px solid var(--border); border-radius:8px;
-  padding:7px 10px; font-size:12.5px; white-space:nowrap;
-  box-shadow:0 3px 12px rgba(0,0,0,.16); z-index:5;
+#tip{position:absolute; pointer-events:none; white-space:nowrap; opacity:0; text-align:center; width:96px}
+#tip .v{font-family:var(--mono); font-size:13px; display:block}
+#tip .d{color:var(--muted); font-size:10.5px; font-family:var(--mono)}
+
+/* периоды */
+.ranges{display:flex; gap:22px; margin-top:18px; padding-top:14px; border-top:1px solid var(--hairline)}
+.ranges button{
+  font:11px/1.4 var(--mono); letter-spacing:.1em; padding:0; cursor:pointer;
+  background:none; border:none; color:var(--muted); border-bottom:1px solid transparent;
 }
-.tip .v{font-weight:660; font-size:15px; display:block}
-.tip .d{color:var(--muted); font-size:11.5px}
-.tip .k{display:inline-block; width:12px; height:2px; background:var(--seq);
-        vertical-align:middle; margin-right:6px; border-radius:1px}
-.tbl-toggle{
-  background:none; border:none; color:var(--muted); font-size:11.5px;
-  padding:4px 0; cursor:pointer; text-decoration:underline;
+.ranges button[aria-pressed="true"]{color:var(--ink); border-bottom-color:var(--ink)}
+
+/* показатели */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:52px 56px; margin-top:80px}
+.blk{border-top:1px solid var(--ink); padding-top:20px}
+.big{font-family:var(--mono); font-size:30px; letter-spacing:-.02em; line-height:1}
+.big small{font-size:13px; color:var(--muted)}
+.rating{color:var(--muted); font-size:12.5px; margin:10px 0 26px}
+.kv{display:flex; gap:12px; padding:11px 0; font-size:13px; border-top:1px solid var(--hairline)}
+.kv span{color:var(--ink-2)}
+.kv b{margin-left:auto; font-family:var(--mono); font-weight:400}
+.rng{height:1px; background:var(--hairline-2); position:relative; margin:34px 0 14px}
+.rng i{position:absolute; top:-5px; width:1px; height:11px; background:var(--accent)}
+.rng-lab{display:flex; justify-content:space-between; font-family:var(--mono); font-size:12px; color:var(--muted)}
+.chk{display:flex; gap:14px; padding:11px 0; font-size:13px; align-items:baseline; border-top:1px solid var(--hairline)}
+.chk .mk{font-family:var(--mono); width:10px; flex-shrink:0}
+.chk em{color:var(--muted); font-style:normal; margin-left:auto; font-family:var(--mono); font-size:12px}
+.warn{color:var(--ink-2); font-size:12.5px; padding:16px 0 0; line-height:1.5}
+
+/* футер */
+.ft{
+  color:var(--muted); font-size:11px; margin-top:96px; padding-top:16px;
+  border-top:1px solid var(--hairline); display:flex; gap:24px; flex-wrap:wrap;
 }
-.tbl-wrap{max-height:190px; overflow:auto; margin-top:6px}
-.tbl-wrap table td{padding:3px 8px; font-size:12px; border:none}
-.tbl-wrap table tr{cursor:default}
-.tbl-wrap table tr:hover{background:none}
+.ft .src{font-family:var(--mono)}
+
+@media (max-width:700px){
+  .wrap{padding:40px 20px 80px}
+  /* Таблица шире экрана — прокручиваем её саму, страница остаётся неподвижной */
+  .tbl-scroll{overflow-x:auto}
+  /* При переносе флекса распорка ломает выключку цены — на узком экране
+     ставим блок цены на всю ширину и выключаем влево */
+  .inst .sp{display:none}
+  .inst-r{text-align:left; width:100%}
+  h2{font-size:28px}
+  .price{font-size:28px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<header>
-  <h1>Инвестиционный терминал</h1>
-  <span class="upd" id="upd"></span>
-  <span class="spacer"></span>
-  <input id="add" placeholder="Тикер" autocomplete="off">
-  <button onclick="addT()">Добавить</button>
-  <button onclick="load()">Обновить</button>
-  <button onclick="theme()" id="th">Тема</button>
-</header>
+  <div class="hd">
+    <h1>Терминал</h1>
+    <span class="sp"></span>
+    <span class="upd" id="upd"></span>
+    <input id="add" placeholder="тикер" autocomplete="off">
+  </div>
 
-<div class="card">
-  <table>
-    <thead><tr>
-      <th>Тикер</th><th>Цена</th><th>Скоринг</th>
-      <th>Fair Value</th><th>Апсайд</th><th>Сигнал</th><th></th>
-    </tr></thead>
-    <tbody id="tb"><tr><td colspan="7" class="msg">Загружаю данные…</td></tr></tbody>
-  </table>
-  <div class="src" id="src"></div>
-</div>
+  <p class="eb" id="wl-eb">Вотчлист</p>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr>
+        <th>Тикер</th><th>Цена</th><th>Скоринг</th>
+        <th>Fair value</th><th>Апсайд</th><th>Сигнал</th><th></th>
+      </tr></thead>
+      <tbody id="tb"><tr><td colspan="7" class="msg">Загружаю данные…</td></tr></tbody>
+    </table>
+  </div>
 
-<div id="detail"></div>
+  <div id="detail"></div>
 
-<div class="dis">Это аналитический инструмент, не инвестиционный совет.</div>
+  <div class="ft">
+    <span>Аналитический инструмент, не инвестиционный совет.</span>
+    <span class="sp"></span>
+    <span class="src" id="src"></span>
+  </div>
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
+const RANGES = [['1m','1М'],['3m','3М'],['6m','6М'],['1y','1Г'],['5y','5Л']];
+const S = {sel:null, range:'6m', rows:[], pts:[], hov:null};
 
-// Сигнал -> статусный цвет. Цвет никогда не единственный носитель смысла:
-// в тексте сигнала всегда есть эмодзи и словесная метка.
-function sigClass(s){
-  if(!s) return 's-neutral';
-  if(s.includes('СИЛЬНЫЙ ЛОНГ')) return 's-good';
-  if(s.includes('ЛОНГ')) return 's-good';
-  if(s.includes('СИЛЬНЫЙ ШОРТ')) return 's-crit';
-  if(s.includes('ШОРТ')) return 's-serious';
-  if(s.includes('НАБЛЮДАТЬ')) return 's-warn';
-  return 's-neutral';
-}
-// en-US, а не ru-RU: доллар пишется с точкой-разделителем, как и в CLI-версии
+/* ── форматирование (локаль en-US, как в оригинале) ───────────────── */
 const money = v => v==null ? '—' : '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const pct   = v => v==null ? '—' : (v>=0?'+':'')+v.toFixed(1)+'%';
 function big(v){
@@ -199,358 +195,317 @@ function big(v){
 }
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+/* Многословный сигнал бэкенда -> короткая метка и класс цвета из макета */
+function sigOf(s){
+  s = s || '';
+  if(s.includes('СИЛЬНЫЙ ЛОНГ')) return {t:'Сильный лонг', c:'s-long'};
+  if(s.includes('ЛОНГ'))         return {t:'Лонг',         c:'s-long'};
+  if(s.includes('СИЛЬНЫЙ ШОРТ')) return {t:'Сильный шорт', c:'s-sshort'};
+  if(s.includes('ШОРТ'))         return {t:'Шорт',         c:'s-short'};
+  if(s.includes('ДЕРЖАТЬ'))      return {t:'Держать',      c:'s-hold'};
+  if(s.includes('НАБЛЮДАТЬ'))    return {t:'Наблюдать',    c:'s-watch'};
+  return {t:'—', c:'s-watch'};
+}
+const METRIC_RU = {'D/E':'Долг / капитал', 'Short Int.':'Short interest'};
+/* Бэкенд отдаёт рейтинг с эмодзи («ХОРОШАЯ ОЦЕНКА ✅») — в монохромной
+   палитре цветная галка выбивается, оставляем только текст. */
+const cleanRating = s => String(s||'').replace(/[←-⯿️\u{1F000}-\u{1FAFF}]/gu,'').trim();
+
+/* ── вотчлист ─────────────────────────────────────────────── */
 async function load(){
-  $('#tb').innerHTML = '<tr><td colspan="7" class="msg">Загружаю данные…</td></tr>';
-  $('#detail').innerHTML = '';
   let d;
   try { d = await (await fetch('/api/watchlist')).json(); }
   catch(e){
-    $('#tb').innerHTML = '<tr><td colspan="7" class="msg err">Сервер не отвечает</td></tr>';
+    $('#tb').innerHTML = '<tr><td colspan="7" class="msg">Сервер не отвечает</td></tr>';
     return;
   }
-  $('#upd').textContent = 'обновлено ' + d.updated;
+  S.rows = d.rows || [];
+  $('#upd').textContent = d.updated || '';
+  $('#wl-eb').textContent = 'Вотчлист · ' + S.rows.length + ' ' + plural(S.rows.length);
 
-  if(!d.rows.length){
+  const srcs = [];
+  Object.values(d.sources||{}).forEach(list => list.forEach(s => {
+    if(!srcs.includes(s.name)) srcs.push(s.name + (s.ok ? '' : ' (сбой)'));
+  }));
+  $('#src').textContent = srcs.join(' · ');
+
+  if(!S.rows.length){
     $('#tb').innerHTML = '<tr><td colspan="7" class="msg">Вотчлист пуст — добавьте тикер</td></tr>';
-  } else {
-    $('#tb').innerHTML = d.rows.map(r => {
-      if(!r.ok) return `<tr><td class="tk">${esc(r.ticker)}</td>
-        <td colspan="5" class="err">${esc(r.error)}</td>
-        <td><span class="x" onclick="rm(event,'${esc(r.ticker)}')">×</span></td></tr>`;
-      const w = Math.max(0, Math.min(100, (r.score/8000)*100));
-      const uc = r.upside==null ? '' : (r.upside>=0?'up':'down');
-      return `<tr onclick="detail('${esc(r.ticker)}')">
-        <td><span class="tk">${esc(r.ticker)}</span><span class="nm">${esc((r.name||'').slice(0,22))}</span></td>
-        <td>${money(r.price)}</td>
-        <td><div class="meter"><span>${r.score}</span>
-            <div class="track"><div class="fill" style="width:${w}%"></div></div></div></td>
-        <td>${money(r.fv)}</td>
-        <td class="${uc}">${pct(r.upside)}</td>
-        <td><div class="sig ${sigClass(r.signal)}"><span class="dot"></span>${esc(r.signal)}</div></td>
-        <td><span class="x" onclick="rm(event,'${esc(r.ticker)}')">×</span></td>
-      </tr>`;
-    }).join('');
+    $('#detail').innerHTML = '';
+    S.sel = null;
+    return;
   }
-
-  const src = Object.entries(d.sources||{}).map(([k,v]) =>
-    k+': '+v.map(s => s.name+' — '+(s.ok?'доступен':'сбой')).join(', ')).join(' · ');
-  $('#src').textContent = src ? 'Источники данных · '+src : '';
+  if(!S.rows.some(r => r.ticker === S.sel)) S.sel = S.rows[0].ticker;
+  drawRows();
+  select(S.sel);
+}
+function plural(n){
+  const a = n % 10, b = n % 100;
+  if(a === 1 && b !== 11) return 'позиция';
+  if(a >= 2 && a <= 4 && (b < 12 || b > 14)) return 'позиции';
+  return 'позиций';
 }
 
-// ─── График цены ────────────────────────────────────────────────────────────
-// Одна серия => легенда не нужна (заголовок карточки называет, что нарисовано).
-let CHART = {ticker:null, range:'6m', pts:[]};
-const RANGE_LABELS = [['1m','1М'],['3m','3М'],['6m','6М'],['1y','1Г'],['5y','5Л']];
+function drawRows(){
+  $('#tb').innerHTML = S.rows.map(r => {
+    const sel = r.ticker === S.sel ? ' class="sel"' : '';
+    const del = '<td class="del"><span onclick="rm(event,\'' + esc(r.ticker) + '\')">×</span></td>';
+    if(!r.ok){
+      return '<tr' + sel + ' onclick="select(\'' + esc(r.ticker) + '\')">' +
+        '<td><span class="tk">' + esc(r.ticker) + '</span></td>' +
+        '<td colspan="5" class="err">' + esc(r.error) + '</td>' + del + '</tr>';
+    }
+    const g = sigOf(r.signal);
+    return '<tr' + sel + ' onclick="select(\'' + esc(r.ticker) + '\')">' +
+      '<td><span class="tk">' + esc(r.ticker) + '</span>' +
+        '<span class="nm">' + esc((r.name||'').slice(0,26)) + '</span></td>' +
+      '<td class="num">' + money(r.price) + '</td>' +
+      '<td class="num-2">' + (r.score==null?'—':r.score) + '</td>' +
+      '<td class="num-2">' + money(r.fv) + '</td>' +
+      '<td class="num ' + (r.upside==null ? '' : (r.upside>=0?'up':'down')) + '">' + pct(r.upside) + '</td>' +
+      '<td class="sig ' + g.c + '">' + g.t + '</td>' + del + '</tr>';
+  }).join('');
+}
 
-// Округлённые деления оси: 0 / 100 / 200, а не 37.4 / 74.8
+/* ── карточка инструмента ────────────────────────────────── */
+async function select(t){
+  S.sel = t; S.hov = null;
+  drawRows();
+  $('#detail').innerHTML = '<p class="eb eb-rule">Инструмент</p><div class="msg">Загружаю ' + esc(t) + '…</div>';
+  const d = await (await fetch('/api/ticker?t='+encodeURIComponent(t))).json();
+  if(!d.ok){
+    $('#detail').innerHTML = '<p class="eb eb-rule">Инструмент</p><div class="msg">' + esc(d.error) + '</div>';
+    return;
+  }
+  drawDetail(d);
+  S.pts = [];
+  loadChart(S.range);
+}
+
+function drawDetail(d){
+  const g = sigOf(d.signal), f = d.fv || {}, te = d.tech || {};
+  const upCls = f.upside==null ? '' : (f.upside>=0?'up':'down');
+  const rangePos = d.range_pos==null ? null : Math.max(0, Math.min(100, d.range_pos));
+
+  const metrics = (d.metrics||[]).map(m => {
+    const v = m.value==null ? '—'
+      : (m.unit==='%' ? (m.value*100).toFixed(1)+'%' : m.value.toFixed(2)+'x');
+    return '<div class="kv"><span>' + esc(METRIC_RU[m.name] || m.name) + '</span><b>' + v + '</b></div>';
+  }).join('');
+
+  const scen = [
+    ['CCA (консенсус)', f.cca], ['DCF (упрощённый)', f.dcf], ['NAV (EV метод)', f.nav],
+    ['Пессимистичный', f.bear], ['Оптимистичный', f.bull],
+  ].map(([n,v]) => '<div class="kv"><span>' + n + '</span><b>' + money(v) + '</b></div>').join('');
+
+  const checks = (d.checklist||[]).map(c => {
+    const mk = c.na ? '—' : (c.ok ? '✓' : '✕');
+    const col = c.na ? 'var(--muted)' : (c.ok ? 'var(--accent-text)' : 'var(--ink)');
+    return '<div class="chk"><span class="mk" style="color:' + col + '">' + mk + '</span>' +
+      '<span' + (c.na ? ' style="color:var(--muted)"' : '') + '>' + esc(c.label) + '</span>' +
+      '<em>' + esc(c.actual) + '</em></div>';
+  }).join('');
+  const warns = (d.warnings||[]).map(w => '<div class="warn">' + esc(w) + '</div>').join('');
+
+  $('#detail').innerHTML =
+  '<p class="eb eb-rule">Инструмент</p>' +
+  '<div class="inst">' +
+    '<div>' +
+      '<div class="inst-tk">' + esc(d.ticker) + '</div>' +
+      '<h2>' + esc(d.name) + '</h2>' +
+      '<div class="inst-sub">' + esc(d.sector) + ' — ' + esc(d.industry) + '</div>' +
+    '</div>' +
+    '<span class="sp"></span>' +
+    '<div class="inst-r">' +
+      '<div class="price">' + money(d.price) + '</div>' +
+      '<div class="price-sub ' + upCls + '">' + pct(f.upside) + ' к базовому сценарию</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<div class="chartbox" id="chartbox"><div id="chart"></div><div id="tip"></div></div>' +
+
+  '<div class="ranges">' +
+    RANGES.map(([k,l]) => '<button id="r-' + k + '" aria-pressed="' + (k===S.range) +
+      '" onclick="loadChart(\'' + k + '\')">' + l + '</button>').join('') +
+    '<span class="sp"></span>' +
+    '<span class="sig ' + g.c + '">' + g.t + '</span>' +
+  '</div>' +
+
+  '<div class="grid">' +
+    '<div class="blk"><p class="eb">Скоринг</p>' +
+      '<div class="big">' + (d.score==null?'—':d.score) + '<small> / 8000</small></div>' +
+      '<div class="rating">' + esc(cleanRating(d.rating)) + '</div>' + metrics +
+    '</div>' +
+
+    '<div class="blk"><p class="eb">Сценарии</p>' +
+      '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:26px">' +
+        '<span class="big">' + money(f.base) + '</span>' +
+        '<span style="color:var(--muted);font-size:12.5px">база</span></div>' + scen +
+    '</div>' +
+
+    '<div class="blk"><p class="eb">Диапазон 52 недели</p>' +
+      (rangePos==null ? '<div class="rng"></div>'
+        : '<div class="rng"><i style="left:' + rangePos.toFixed(1) + '%"></i></div>') +
+      '<div class="rng-lab"><span>' + money(d.week52_low) + '</span>' +
+        '<span>' + money(d.week52_high) + '</span></div>' +
+      '<div class="kv" style="margin-top:26px"><span>Капитализация</span><b>' + big(d.market_cap) + '</b></div>' +
+      '<div class="kv"><span>Бета</span><b>' + (d.beta==null?'—':d.beta.toFixed(2)) + '</b></div>' +
+      '<div class="kv"><span>RSI (14)</span><b>' +
+        (te.available && te.rsi!=null ? te.rsi : '—') + '</b></div>' +
+    '</div>' +
+
+    '<div class="blk"><p class="eb">Чеклист</p>' + checks + warns + '</div>' +
+  '</div>';
+}
+
+/* ── график ──────────────────────────────────────────────── */
 function niceTicks(lo, hi, count){
   const span = (hi - lo) || 1;
-  const mag  = Math.pow(10, Math.floor(Math.log10(span / count)));
-  const norm = (span / count) / mag;
+  const mag  = Math.pow(10, Math.floor(Math.log10(span/count)));
+  const norm = (span/count)/mag;
   const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag;
   const out = [];
   for(let v = Math.ceil(lo/step)*step; v <= hi + 1e-9; v += step) out.push(v);
   return out;
 }
-function axisNum(v){
-  if(Math.abs(v) >= 1000) return v.toLocaleString('en-US',{maximumFractionDigits:0});
-  return (+v.toFixed(2)).toString();
-}
-function shortDate(iso, rng){
-  const p = iso.split('-');                       // YYYY-MM-DD
-  return (rng==='5y'||rng==='1y') ? p[1]+'.'+p[0].slice(2) : p[2]+'.'+p[1];
-}
+const axisNum = v => Math.abs(v) >= 1000
+  ? v.toLocaleString('en-US',{maximumFractionDigits:0}) : (+v.toFixed(2)).toString();
 
 function renderChart(){
   const host = document.getElementById('chart');
   if(!host) return;
-  const pts = CHART.pts;
+  const pts = S.pts;
   if(!pts || pts.length < 2){
-    host.innerHTML = '<div class="load" style="padding:90px 0;text-align:center">Нет данных для графика</div>';
+    host.innerHTML = '<div class="msg">Нет данных для графика</div>';
     return;
   }
-  const W = Math.max(host.clientWidth, 320), H = 250;
-  const L = 58, R = 14, T = 14, B = 26;
-  const pw = W - L - R, ph = H - T - B;
-
+  // viewBox по вертикали = пиксели (height:220px), поэтому HTML-подписи
+  // позиционируются теми же координатами, что и SVG.
+  const W = 1000, T = 8, BASE = 196, ph = BASE - T;
   const vals = pts.map(p => p.c);
   let lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
-  const pad = (hi - lo) * 0.06 || Math.abs(hi * 0.02) || 1;
+  const pad = (hi - lo) * 0.1 || Math.abs(hi * 0.02) || 1;
   lo -= pad; hi += pad;
+  const X = i => (i/(pts.length-1)) * W;
+  const Y = v => T + ph - ((v - lo)/(hi - lo)) * ph;
 
-  const X = i => L + (pts.length === 1 ? pw/2 : (i/(pts.length-1))*pw);
-  const Y = v => T + ph - ((v - lo)/(hi - lo))*ph;
-
-  let d = '', area = '';
-  for(let i=0;i<pts.length;i++){
-    d += (i?'L':'M') + X(i).toFixed(1) + ' ' + Y(pts[i].c).toFixed(1) + ' ';
-  }
-  area = d + 'L' + X(pts.length-1).toFixed(1) + ' ' + (T+ph) + ' L' + X(0).toFixed(1) + ' ' + (T+ph) + ' Z';
-
-  // Сетка: горизонтальные волосяные линии, подписи — приглушённым текстом
-  let grid = '';
-  niceTicks(lo, hi, 4).forEach(v => {
-    const y = Y(v).toFixed(1);
-    grid += '<line x1="'+L+'" y1="'+y+'" x2="'+(L+pw)+'" y2="'+y+
-            '" stroke="var(--gridline)" stroke-width="1"/>' +
-            '<text x="'+(L-9)+'" y="'+y+'" text-anchor="end" dominant-baseline="middle"' +
-            ' fill="var(--muted)" font-size="11" style="font-variant-numeric:tabular-nums">' +
-            axisNum(v) + '</text>';
-  });
-
-  // Подписи по X — 5 штук, редко и по краям
-  let xlab = '';
-  const n = Math.min(5, pts.length);
-  for(let k=0;k<n;k++){
-    const i = Math.round(k*(pts.length-1)/(n-1||1));
-    xlab += '<text x="'+X(i).toFixed(1)+'" y="'+(T+ph+17)+'" text-anchor="middle"' +
-            ' fill="var(--muted)" font-size="11">' + shortDate(pts[i].d, CHART.range) + '</text>';
-  }
-
+  let line = '';
+  for(let i=0;i<pts.length;i++) line += (i?'L':'M') + X(i).toFixed(1) + ' ' + Y(pts[i].c).toFixed(1) + ' ';
+  const area = line + 'L' + X(pts.length-1).toFixed(1) + ' ' + BASE + ' L0 ' + BASE + ' Z';
   const lastX = X(pts.length-1).toFixed(1), lastY = Y(pts[pts.length-1].c).toFixed(1);
 
   host.innerHTML =
-    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="График цены">' +
-      grid + xlab +
-      '<path d="'+area+'" fill="var(--seq)" fill-opacity="0.10"/>' +
-      '<path d="'+d+'" fill="none" stroke="var(--seq)" stroke-width="2"' +
+    '<svg viewBox="0 0 1000 220" preserveAspectRatio="none" role="img" aria-label="График цены">' +
+      '<line x1="0" y1="196" x2="1000" y2="196" stroke="#0b0f12" stroke-width="1"/>' +
+      '<path d="' + area + '" fill="#1478c8" fill-opacity="0.07"/>' +
+      '<path d="' + line + '" fill="none" stroke="#1478c8" stroke-width="1.75"' +
       ' stroke-linejoin="round" stroke-linecap="round"/>' +
-      // Крестовина и точка наведения — скрыты до hover
-      '<line id="cross" y1="'+T+'" y2="'+(T+ph)+'" stroke="var(--baseline)"' +
-      ' stroke-width="1" opacity="0"/>' +
-      '<circle id="hov" r="4" fill="var(--seq)" stroke="var(--surface-1)"' +
-      ' stroke-width="2" opacity="0"/>' +
-      // Маркер последней точки: r=4 с кольцом цвета поверхности
-      '<circle cx="'+lastX+'" cy="'+lastY+'" r="4" fill="var(--seq)"' +
-      ' stroke="var(--surface-1)" stroke-width="2"/>' +
-      '<rect id="hit" x="'+L+'" y="'+T+'" width="'+pw+'" height="'+ph+'" fill="transparent"/>' +
+      '<line id="cx" x1="0" y1="8" x2="0" y2="196" stroke="#0b0f12" stroke-width="0.75" opacity="0"/>' +
+      '<circle id="hv" r="3.5" fill="#0b0f12" opacity="0"/>' +
+      '<circle cx="' + lastX + '" cy="' + lastY + '" r="3" fill="#1478c8"/>' +
     '</svg>';
+
+  const box = document.getElementById('chartbox');
+  box.querySelectorAll('.ylab,.xlab').forEach(e => e.remove());
+
+  niceTicks(lo, hi, 4).map(v => ({y:Y(v), label:axisNum(v)}))
+    .filter(g => g.y > 14 && g.y < BASE - 8)
+    .forEach(g => {
+      const el = document.createElement('div');
+      el.className = 'ylab'; el.style.top = g.y.toFixed(1) + 'px';
+      el.textContent = g.label; box.appendChild(el);
+    });
+
+  for(let k=0;k<4;k++){
+    const i = Math.round(k*(pts.length-1)/3);
+    const p = pts[i].d.split('-');
+    const el = document.createElement('div');
+    el.className = 'xlab';
+    el.style.left = ((X(i)/W)*100).toFixed(2) + '%';
+    el.style.transform = k===0 ? 'none' : k===3 ? 'translateX(-100%)' : 'translateX(-50%)';
+    el.textContent = (S.range==='5y'||S.range==='1y') ? p[1]+'.'+p[0].slice(2) : p[2]+'.'+p[1];
+    box.appendChild(el);
+  }
 
   const svg = host.querySelector('svg');
   const tip = document.getElementById('tip');
-  const cross = host.querySelector('#cross'), hov = host.querySelector('#hov');
+  const cx = host.querySelector('#cx'), hv = host.querySelector('#hv');
 
-  function show(ev){
-    const box = svg.getBoundingClientRect();
-    const sx  = (ev.clientX - box.left) * (W / box.width);
-    // Снап к ближайшей точке: целимся в дату, а не в линию толщиной 2px
-    let i = Math.round(((sx - L)/pw) * (pts.length - 1));
-    i = Math.max(0, Math.min(pts.length - 1, i));
+  svg.addEventListener('pointermove', ev => {
+    const b = svg.getBoundingClientRect();
+    // Снап к ближайшей точке: целимся в дату, а не в тонкую линию
+    let i = Math.round(((ev.clientX - b.left)/b.width) * (pts.length-1));
+    i = Math.max(0, Math.min(pts.length-1, i));
     const px = X(i), py = Y(pts[i].c);
-    cross.setAttribute('x1', px); cross.setAttribute('x2', px);
-    cross.setAttribute('opacity','1');
-    hov.setAttribute('cx', px); hov.setAttribute('cy', py);
-    hov.setAttribute('opacity','1');
-
-    // Подписи — untrusted data, вставляем через textContent
+    cx.setAttribute('x1', px); cx.setAttribute('x2', px); cx.setAttribute('opacity','1');
+    hv.setAttribute('cx', px); hv.setAttribute('cy', py); hv.setAttribute('opacity','1');
     tip.textContent = '';
-    const v = document.createElement('span'); v.className = 'v';
-    v.textContent = money(pts[i].c);
-    const dd = document.createElement('span'); dd.className = 'd';
-    const k  = document.createElement('span'); k.className = 'k';
-    dd.appendChild(k);
-    dd.appendChild(document.createTextNode(pts[i].d));
+    const v = document.createElement('span'); v.className='v'; v.textContent = money(pts[i].c);
+    const dd = document.createElement('span'); dd.className='d'; dd.textContent = pts[i].d;
     tip.appendChild(v); tip.appendChild(dd);
-
-    const rel = px * (box.width / W);
+    tip.style.left = 'calc(' + ((px/W)*100).toFixed(2) + '% - 48px)';
+    tip.style.top  = Math.max(0, py - 56).toFixed(0) + 'px';
     tip.style.opacity = '1';
-    tip.style.left = Math.max(0, Math.min(box.width - tip.offsetWidth, rel - tip.offsetWidth/2)) + 'px';
-    tip.style.top  = Math.max(0, py * (box.height / H) - tip.offsetHeight - 12) + 'px';
-  }
-  function hide(){
-    cross.setAttribute('opacity','0'); hov.setAttribute('opacity','0');
+  });
+  svg.addEventListener('pointerleave', () => {
+    cx.setAttribute('opacity','0'); hv.setAttribute('opacity','0');
     tip.style.opacity = '0';
-  }
-  svg.addEventListener('pointermove', show);
-  svg.addEventListener('pointerleave', hide);
+  });
 }
 
 async function loadChart(rng){
   const host = document.getElementById('chart');
-  if(!host) return;
-  if(rng) CHART.range = rng;
-  RANGE_LABELS.forEach(([k]) => {
+  if(!host || !S.sel) return;
+  if(rng) S.range = rng;
+  RANGES.forEach(([k]) => {
     const b = document.getElementById('r-'+k);
-    if(b) b.setAttribute('aria-pressed', String(k === CHART.range));
+    if(b) b.setAttribute('aria-pressed', String(k === S.range));
   });
+  const box = document.getElementById('chartbox');
   // Перезагрузка держит прежний кадр приглушённым — без скелета и скачка вёрстки
-  if(CHART.pts.length) host.classList.add('loading');
-  else host.innerHTML = '<div class="load" style="padding:90px 0;text-align:center">Загружаю график…</div>';
+  if(S.pts.length) box.classList.add('loading');
+  else host.innerHTML = '<div class="msg">Загружаю график…</div>';
 
   let r;
   try{
-    r = await (await fetch('/api/history?t='+encodeURIComponent(CHART.ticker)+'&r='+CHART.range)).json();
+    r = await (await fetch('/api/history?t='+encodeURIComponent(S.sel)+'&r='+S.range)).json();
   }catch(e){ r = {ok:false, error:'сервер не отвечает'}; }
 
-  host.classList.remove('loading');
+  box.classList.remove('loading');
   if(!r.ok){
-    CHART.pts = [];
+    S.pts = [];
+    box.querySelectorAll('.ylab,.xlab').forEach(e => e.remove());
     host.textContent = '';
     const m = document.createElement('div');
-    m.className = 'load'; m.style.cssText = 'padding:90px 0;text-align:center';
-    m.textContent = r.error || 'нет данных';
+    m.className = 'msg'; m.textContent = r.error || 'Нет данных для графика';
     host.appendChild(m);
     return;
   }
-  CHART.pts = r.points;
+  S.pts = r.points;
   renderChart();
-  const tw = document.getElementById('tblwrap');
-  if(tw && tw.dataset.open === '1') fillTbl();
 }
 
-// Табличный вид: те же значения без наведения мышью
-function fillTbl(){
-  const tw = document.getElementById('tblwrap');
-  if(!tw) return;
-  tw.textContent = '';
-  const wrap = document.createElement('div'); wrap.className = 'tbl-wrap';
-  const t = document.createElement('table'); const tb = document.createElement('tbody');
-  CHART.pts.slice().reverse().forEach(p => {
-    const tr = document.createElement('tr');
-    const a = document.createElement('td'); a.textContent = p.d;
-    const b = document.createElement('td'); b.style.textAlign = 'right';
-    b.textContent = money(p.c);
-    tr.appendChild(a); tr.appendChild(b); tb.appendChild(tr);
-  });
-  t.appendChild(tb); wrap.appendChild(t); tw.appendChild(wrap);
-}
-function toggleTbl(){
-  const tw = document.getElementById('tblwrap');
-  const btn = document.getElementById('tbtn');
-  if(!tw) return;
-  if(tw.dataset.open === '1'){
-    tw.dataset.open = '0'; tw.textContent = '';
-    btn.textContent = 'Показать данные таблицей';
-  }else{
-    tw.dataset.open = '1'; fillTbl();
-    btn.textContent = 'Скрыть таблицу';
-  }
-}
-
-let _rz;
-window.addEventListener('resize', () => {
-  clearTimeout(_rz);
-  _rz = setTimeout(() => { if(CHART.pts.length) renderChart(); }, 150);
-});
-
-async function detail(t){
-  $('#detail').innerHTML = '<div class="card"><span class="load">Загружаю '+esc(t)+'…</span></div>';
-  const d = await (await fetch('/api/ticker?t='+encodeURIComponent(t))).json();
-  if(!d.ok){
-    $('#detail').innerHTML = '<div class="card"><span class="err">'+esc(d.error)+'</span></div>';
-    return;
-  }
-  const f=d.fv, te=d.tech||{};
-  let rp = '';
-  if(d.range_pos!=null){
-    rp = `<div class="rng"><i style="left:calc(${d.range_pos.toFixed(0)}% - 1px)"></i></div>
-          <div class="kv"><span>${money(d.week52_low)}</span><span>${money(d.week52_high)}</span></div>`;
-  }
-  $('#detail').innerHTML = `<div class="card">
-    <h2>${esc(d.name)} · ${esc(d.ticker)}</h2>
-    <div class="sub">${esc(d.sector)} — ${esc(d.industry)}</div>
-
-    <div class="ranges" role="group" aria-label="Период графика">
-      ${RANGE_LABELS.map(([k,l]) =>
-        `<button id="r-${k}" aria-pressed="false" onclick="loadChart('${k}')">${l}</button>`
-      ).join('')}
-    </div>
-    <div class="chartbox">
-      <div class="chart" id="chart"></div>
-      <div class="tip" id="tip"></div>
-    </div>
-    <button class="tbl-toggle" id="tbtn" onclick="toggleTbl()">Показать данные таблицей</button>
-    <div id="tblwrap" data-open="0"></div>
-
-    <div class="grid" style="margin-top:16px">
-      <div>
-        <p class="sec-t">Цена</p>
-        <div class="hero">${money(d.price)}</div>
-        ${rp}
-        <div class="kv"><span>Капитализация</span><b>${big(d.market_cap)}</b></div>
-        <div class="kv"><span>Бета</span><b>${d.beta==null?'—':d.beta.toFixed(2)}</b></div>
-      </div>
-
-      <div>
-        <p class="sec-t">Скоринг</p>
-        <div class="hero">${d.score}<span style="font-size:14px;color:var(--muted)"> / 8000</span></div>
-        <div class="sub">${esc(d.rating)}</div>
-        ${d.metrics.map(m => {
-          const v = m.value==null ? '—'
-            : (m.unit==='%' ? (m.value*100).toFixed(1)+'%' : m.value.toFixed(2)+'x');
-          return `<div class="kv"><span>${esc(m.name)}</span>
-            <b>${v}</b><em style="color:var(--muted);font-style:normal">${m.points>0?'+':''}${m.points}</em></div>`;
-        }).join('')}
-      </div>
-
-      <div>
-        <p class="sec-t">Справедливая стоимость</p>
-        <div class="hero ${f.upside==null?'':(f.upside>=0?'up':'down')}">${pct(f.upside)}</div>
-        <div class="sub">апсайд до базового сценария</div>
-        <div class="kv"><span>CCA (консенсус)</span><b>${money(f.cca)}</b></div>
-        <div class="kv"><span>DCF (упрощённый)</span><b>${money(f.dcf)}</b></div>
-        <div class="kv"><span>NAV (EV метод)</span><b>${money(f.nav)}</b></div>
-        <div class="kv" style="border-top:1px solid var(--gridline);margin-top:5px;padding-top:8px">
-          <span>🐻 Пессимистичный</span><b>${money(f.bear)}</b></div>
-        <div class="kv"><span>⚖️ Базовый</span><b>${money(f.base)}</b></div>
-        <div class="kv"><span>🐂 Оптимистичный</span><b>${money(f.bull)}</b></div>
-      </div>
-
-      ${te.available ? `<div>
-        <p class="sec-t">Технический анализ</p>
-        <div class="kv"><span>RSI (14)</span><b>${te.rsi} · ${esc(te.rsi_comment)}</b></div>
-        <div class="kv"><span>MACD</span><b>${te.macd} · ${esc(te.macd_trend)}</b></div>
-        <div class="kv"><span>Bollinger</span><b>${te.bb_low} / ${te.bb_mid} / ${te.bb_high}</b></div>
-        <div class="kv"><span>Позиция</span><b>${esc(te.bb_comment)}</b></div>
-      </div>` : ''}
-
-      <div>
-        <p class="sec-t">Чеклист</p>
-        ${d.checklist.map(c => `<div class="chk">
-          <span>${c.na?'<span style="color:var(--muted)">—</span>':(c.ok?'✅':'❌')}</span>
-          <span${c.na?' style="color:var(--muted)"':''}>${esc(c.label)}</span><em>${esc(c.actual)}</em></div>`).join('')}
-        ${d.warnings.map(w => `<div class="warn">${esc(w)}</div>`).join('')}
-      </div>
-
-      <div>
-        <p class="sec-t">Новости</p>
-        ${d.news.length
-          ? d.news.map(n => `<div class="news"><time>${esc((n.date||'').slice(0,16))}</time>${esc(n.title)}</div>`).join('')
-          : '<div class="load">Новости временно недоступны</div>'}
-      </div>
-    </div>
-
-    <div style="margin-top:17px;padding-top:14px;border-top:1px solid var(--gridline)">
-      <p class="sec-t">Итоговый сигнал</p>
-      <div class="sig ${sigClass(d.signal)}" style="font-size:16px"><span class="dot"></span>${esc(d.signal)}</div>
-    </div>
-  </div>`;
-  $('#detail').scrollIntoView({behavior:'smooth', block:'nearest'});
-  CHART = {ticker: d.ticker, range: CHART.range || '6m', pts: []};
-  loadChart(CHART.range);
-}
-
+/* ── действия ────────────────────────────────────────────── */
 async function addT(){
   const v = $('#add').value.trim().toUpperCase();
   if(!v) return;
   await fetch('/api/add?t='+encodeURIComponent(v));
   $('#add').value = '';
+  S.sel = v;
   load();
 }
-async function rm(e,t){
+async function rm(e, t){
   e.stopPropagation();
   await fetch('/api/remove?t='+encodeURIComponent(t));
+  if(S.sel === t) S.sel = null;
   load();
 }
-function theme(){
-  const cur = document.documentElement.getAttribute('data-theme');
-  const next = cur==='dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-}
-const saved = localStorage.getItem('theme');
-if(saved) document.documentElement.setAttribute('data-theme', saved);
-$('#add').addEventListener('keydown', e => { if(e.key==='Enter') addT(); });
+let _rz;
+window.addEventListener('resize', () => {
+  clearTimeout(_rz);
+  _rz = setTimeout(() => { if(S.pts.length) renderChart(); }, 150);
+});
+$('#add').addEventListener('keydown', e => { if(e.key === 'Enter') addT(); });
 load();
 </script>
 </body>
