@@ -114,6 +114,33 @@ h2{font-size:15px; margin:0 0 3px; font-weight:650}
 .src{color:var(--muted); font-size:11.5px; margin-top:13px}
 .dis{color:var(--muted); font-size:11.5px; margin-top:18px; text-align:center}
 .load{color:var(--muted); font-size:12.5px}
+.chartbox{position:relative; margin-top:4px}
+.ranges{display:flex; gap:6px; margin:0 0 10px}
+.ranges button{padding:4px 11px; font-size:12.5px; border-radius:6px}
+.ranges button[aria-pressed="true"]{
+  background:var(--seq); color:#fff; border-color:var(--seq);
+}
+.chart{width:100%; height:250px; position:relative}
+.chart svg{display:block; width:100%; height:100%}
+.chart.loading svg{opacity:.45}
+.tip{
+  position:absolute; pointer-events:none; opacity:0; transition:opacity .1s;
+  background:var(--surface-1); border:1px solid var(--border); border-radius:8px;
+  padding:7px 10px; font-size:12.5px; white-space:nowrap;
+  box-shadow:0 3px 12px rgba(0,0,0,.16); z-index:5;
+}
+.tip .v{font-weight:660; font-size:15px; display:block}
+.tip .d{color:var(--muted); font-size:11.5px}
+.tip .k{display:inline-block; width:12px; height:2px; background:var(--seq);
+        vertical-align:middle; margin-right:6px; border-radius:1px}
+.tbl-toggle{
+  background:none; border:none; color:var(--muted); font-size:11.5px;
+  padding:4px 0; cursor:pointer; text-decoration:underline;
+}
+.tbl-wrap{max-height:190px; overflow:auto; margin-top:6px}
+.tbl-wrap table td{padding:3px 8px; font-size:12px; border:none}
+.tbl-wrap table tr{cursor:default}
+.tbl-wrap table tr:hover{background:none}
 </style>
 </head>
 <body>
@@ -210,6 +237,202 @@ async function load(){
   $('#src').textContent = src ? 'Источники данных · '+src : '';
 }
 
+// ─── График цены ────────────────────────────────────────────────────────────
+// Одна серия => легенда не нужна (заголовок карточки называет, что нарисовано).
+let CHART = {ticker:null, range:'6m', pts:[]};
+const RANGE_LABELS = [['1m','1М'],['3m','3М'],['6m','6М'],['1y','1Г'],['5y','5Л']];
+
+// Округлённые деления оси: 0 / 100 / 200, а не 37.4 / 74.8
+function niceTicks(lo, hi, count){
+  const span = (hi - lo) || 1;
+  const mag  = Math.pow(10, Math.floor(Math.log10(span / count)));
+  const norm = (span / count) / mag;
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag;
+  const out = [];
+  for(let v = Math.ceil(lo/step)*step; v <= hi + 1e-9; v += step) out.push(v);
+  return out;
+}
+function axisNum(v){
+  if(Math.abs(v) >= 1000) return v.toLocaleString('en-US',{maximumFractionDigits:0});
+  return (+v.toFixed(2)).toString();
+}
+function shortDate(iso, rng){
+  const p = iso.split('-');                       // YYYY-MM-DD
+  return (rng==='5y'||rng==='1y') ? p[1]+'.'+p[0].slice(2) : p[2]+'.'+p[1];
+}
+
+function renderChart(){
+  const host = document.getElementById('chart');
+  if(!host) return;
+  const pts = CHART.pts;
+  if(!pts || pts.length < 2){
+    host.innerHTML = '<div class="load" style="padding:90px 0;text-align:center">Нет данных для графика</div>';
+    return;
+  }
+  const W = Math.max(host.clientWidth, 320), H = 250;
+  const L = 58, R = 14, T = 14, B = 26;
+  const pw = W - L - R, ph = H - T - B;
+
+  const vals = pts.map(p => p.c);
+  let lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  const pad = (hi - lo) * 0.06 || Math.abs(hi * 0.02) || 1;
+  lo -= pad; hi += pad;
+
+  const X = i => L + (pts.length === 1 ? pw/2 : (i/(pts.length-1))*pw);
+  const Y = v => T + ph - ((v - lo)/(hi - lo))*ph;
+
+  let d = '', area = '';
+  for(let i=0;i<pts.length;i++){
+    d += (i?'L':'M') + X(i).toFixed(1) + ' ' + Y(pts[i].c).toFixed(1) + ' ';
+  }
+  area = d + 'L' + X(pts.length-1).toFixed(1) + ' ' + (T+ph) + ' L' + X(0).toFixed(1) + ' ' + (T+ph) + ' Z';
+
+  // Сетка: горизонтальные волосяные линии, подписи — приглушённым текстом
+  let grid = '';
+  niceTicks(lo, hi, 4).forEach(v => {
+    const y = Y(v).toFixed(1);
+    grid += '<line x1="'+L+'" y1="'+y+'" x2="'+(L+pw)+'" y2="'+y+
+            '" stroke="var(--gridline)" stroke-width="1"/>' +
+            '<text x="'+(L-9)+'" y="'+y+'" text-anchor="end" dominant-baseline="middle"' +
+            ' fill="var(--muted)" font-size="11" style="font-variant-numeric:tabular-nums">' +
+            axisNum(v) + '</text>';
+  });
+
+  // Подписи по X — 5 штук, редко и по краям
+  let xlab = '';
+  const n = Math.min(5, pts.length);
+  for(let k=0;k<n;k++){
+    const i = Math.round(k*(pts.length-1)/(n-1||1));
+    xlab += '<text x="'+X(i).toFixed(1)+'" y="'+(T+ph+17)+'" text-anchor="middle"' +
+            ' fill="var(--muted)" font-size="11">' + shortDate(pts[i].d, CHART.range) + '</text>';
+  }
+
+  const lastX = X(pts.length-1).toFixed(1), lastY = Y(pts[pts.length-1].c).toFixed(1);
+
+  host.innerHTML =
+    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="График цены">' +
+      grid + xlab +
+      '<path d="'+area+'" fill="var(--seq)" fill-opacity="0.10"/>' +
+      '<path d="'+d+'" fill="none" stroke="var(--seq)" stroke-width="2"' +
+      ' stroke-linejoin="round" stroke-linecap="round"/>' +
+      // Крестовина и точка наведения — скрыты до hover
+      '<line id="cross" y1="'+T+'" y2="'+(T+ph)+'" stroke="var(--baseline)"' +
+      ' stroke-width="1" opacity="0"/>' +
+      '<circle id="hov" r="4" fill="var(--seq)" stroke="var(--surface-1)"' +
+      ' stroke-width="2" opacity="0"/>' +
+      // Маркер последней точки: r=4 с кольцом цвета поверхности
+      '<circle cx="'+lastX+'" cy="'+lastY+'" r="4" fill="var(--seq)"' +
+      ' stroke="var(--surface-1)" stroke-width="2"/>' +
+      '<rect id="hit" x="'+L+'" y="'+T+'" width="'+pw+'" height="'+ph+'" fill="transparent"/>' +
+    '</svg>';
+
+  const svg = host.querySelector('svg');
+  const tip = document.getElementById('tip');
+  const cross = host.querySelector('#cross'), hov = host.querySelector('#hov');
+
+  function show(ev){
+    const box = svg.getBoundingClientRect();
+    const sx  = (ev.clientX - box.left) * (W / box.width);
+    // Снап к ближайшей точке: целимся в дату, а не в линию толщиной 2px
+    let i = Math.round(((sx - L)/pw) * (pts.length - 1));
+    i = Math.max(0, Math.min(pts.length - 1, i));
+    const px = X(i), py = Y(pts[i].c);
+    cross.setAttribute('x1', px); cross.setAttribute('x2', px);
+    cross.setAttribute('opacity','1');
+    hov.setAttribute('cx', px); hov.setAttribute('cy', py);
+    hov.setAttribute('opacity','1');
+
+    // Подписи — untrusted data, вставляем через textContent
+    tip.textContent = '';
+    const v = document.createElement('span'); v.className = 'v';
+    v.textContent = money(pts[i].c);
+    const dd = document.createElement('span'); dd.className = 'd';
+    const k  = document.createElement('span'); k.className = 'k';
+    dd.appendChild(k);
+    dd.appendChild(document.createTextNode(pts[i].d));
+    tip.appendChild(v); tip.appendChild(dd);
+
+    const rel = px * (box.width / W);
+    tip.style.opacity = '1';
+    tip.style.left = Math.max(0, Math.min(box.width - tip.offsetWidth, rel - tip.offsetWidth/2)) + 'px';
+    tip.style.top  = Math.max(0, py * (box.height / H) - tip.offsetHeight - 12) + 'px';
+  }
+  function hide(){
+    cross.setAttribute('opacity','0'); hov.setAttribute('opacity','0');
+    tip.style.opacity = '0';
+  }
+  svg.addEventListener('pointermove', show);
+  svg.addEventListener('pointerleave', hide);
+}
+
+async function loadChart(rng){
+  const host = document.getElementById('chart');
+  if(!host) return;
+  if(rng) CHART.range = rng;
+  RANGE_LABELS.forEach(([k]) => {
+    const b = document.getElementById('r-'+k);
+    if(b) b.setAttribute('aria-pressed', String(k === CHART.range));
+  });
+  // Перезагрузка держит прежний кадр приглушённым — без скелета и скачка вёрстки
+  if(CHART.pts.length) host.classList.add('loading');
+  else host.innerHTML = '<div class="load" style="padding:90px 0;text-align:center">Загружаю график…</div>';
+
+  let r;
+  try{
+    r = await (await fetch('/api/history?t='+encodeURIComponent(CHART.ticker)+'&r='+CHART.range)).json();
+  }catch(e){ r = {ok:false, error:'сервер не отвечает'}; }
+
+  host.classList.remove('loading');
+  if(!r.ok){
+    CHART.pts = [];
+    host.textContent = '';
+    const m = document.createElement('div');
+    m.className = 'load'; m.style.cssText = 'padding:90px 0;text-align:center';
+    m.textContent = r.error || 'нет данных';
+    host.appendChild(m);
+    return;
+  }
+  CHART.pts = r.points;
+  renderChart();
+  const tw = document.getElementById('tblwrap');
+  if(tw && tw.dataset.open === '1') fillTbl();
+}
+
+// Табличный вид: те же значения без наведения мышью
+function fillTbl(){
+  const tw = document.getElementById('tblwrap');
+  if(!tw) return;
+  tw.textContent = '';
+  const wrap = document.createElement('div'); wrap.className = 'tbl-wrap';
+  const t = document.createElement('table'); const tb = document.createElement('tbody');
+  CHART.pts.slice().reverse().forEach(p => {
+    const tr = document.createElement('tr');
+    const a = document.createElement('td'); a.textContent = p.d;
+    const b = document.createElement('td'); b.style.textAlign = 'right';
+    b.textContent = money(p.c);
+    tr.appendChild(a); tr.appendChild(b); tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t); tw.appendChild(wrap);
+}
+function toggleTbl(){
+  const tw = document.getElementById('tblwrap');
+  const btn = document.getElementById('tbtn');
+  if(!tw) return;
+  if(tw.dataset.open === '1'){
+    tw.dataset.open = '0'; tw.textContent = '';
+    btn.textContent = 'Показать данные таблицей';
+  }else{
+    tw.dataset.open = '1'; fillTbl();
+    btn.textContent = 'Скрыть таблицу';
+  }
+}
+
+let _rz;
+window.addEventListener('resize', () => {
+  clearTimeout(_rz);
+  _rz = setTimeout(() => { if(CHART.pts.length) renderChart(); }, 150);
+});
+
 async function detail(t){
   $('#detail').innerHTML = '<div class="card"><span class="load">Загружаю '+esc(t)+'…</span></div>';
   const d = await (await fetch('/api/ticker?t='+encodeURIComponent(t))).json();
@@ -227,7 +450,19 @@ async function detail(t){
     <h2>${esc(d.name)} · ${esc(d.ticker)}</h2>
     <div class="sub">${esc(d.sector)} — ${esc(d.industry)}</div>
 
-    <div class="grid">
+    <div class="ranges" role="group" aria-label="Период графика">
+      ${RANGE_LABELS.map(([k,l]) =>
+        `<button id="r-${k}" aria-pressed="false" onclick="loadChart('${k}')">${l}</button>`
+      ).join('')}
+    </div>
+    <div class="chartbox">
+      <div class="chart" id="chart"></div>
+      <div class="tip" id="tip"></div>
+    </div>
+    <button class="tbl-toggle" id="tbtn" onclick="toggleTbl()">Показать данные таблицей</button>
+    <div id="tblwrap" data-open="0"></div>
+
+    <div class="grid" style="margin-top:16px">
       <div>
         <p class="sec-t">Цена</p>
         <div class="hero">${money(d.price)}</div>
@@ -291,6 +526,8 @@ async function detail(t){
     </div>
   </div>`;
   $('#detail').scrollIntoView({behavior:'smooth', block:'nearest'});
+  CHART = {ticker: d.ticker, range: CHART.range || '6m', pts: []};
+  loadChart(CHART.range);
 }
 
 async function addT(){
