@@ -61,7 +61,7 @@ def analyze(ticker: str) -> dict:
             "signal": sig["signal"], "warnings": sig["warnings"],
         }
     except Exception as e:
-        return {"ticker": ticker, "ok": False, "error": str(e)[:60]}
+        return {"ticker": ticker, "ok": False, "error": str(e)[:160]}
 
 
 # ── дашборд ─────────────────────────────────────────────────────

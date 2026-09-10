@@ -6,13 +6,17 @@ from .registry import REGISTRY, Source
 
 try:
     import yfinance as yf
-except ImportError:
+    _IMPORT_ERROR = None
+except ImportError as e:
+    # Импорт yfinance тянет bs4, curl_cffi и др. Сам yfinance может стоять,
+    # а падать на его зависимости — сохраняем настоящее имя модуля.
     yf = None
+    _IMPORT_ERROR = e
 
 # ── регистрируем yfinance как основной источник ──────────────────
 def _yf_fetch(ticker: str) -> dict:
     if yf is None:
-        raise RuntimeError("yfinance не установлен")
+        raise RuntimeError(f"не хватает модуля — {_IMPORT_ERROR}")
     stock = yf.Ticker(ticker)
     info  = stock.info
     name  = info.get("longName") or info.get("shortName")
@@ -52,8 +56,10 @@ def _yf_fetch(ticker: str) -> dict:
         "shares": shares,
     }
 
+# rate_limit тут — пауза между запросами, а не блокировка: от 429 защищает
+# кэш на 15 минут, поэтому достаточно слегка развести запросы во времени.
 REGISTRY.register("fundamentals", Source(
-    name="yfinance", priority=1, fetch=_yf_fetch, rate_limit=30
+    name="yfinance", priority=1, fetch=_yf_fetch, rate_limit=0.5
 ))
 
 def get_data(ticker: str, use_cache: bool = True, ttl: float = 900) -> dict:

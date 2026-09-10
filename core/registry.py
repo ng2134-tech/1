@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Реестр источников данных с fallback и rate-limit.
 # Паттерн: capability registry из архитектуры TR.
-import time
+import time, threading
 from dataclasses import dataclass, field
 from typing import Callable, Any
 
@@ -10,24 +10,29 @@ class Source:
     name: str
     priority: int           # меньше = выше приоритет
     fetch: Callable
-    rate_limit: float = 15  # минимум секунд между вызовами
+    rate_limit: float = 0.5 # минимальный интервал между вызовами, секунд
     _last: float = field(default=0.0, repr=False)
     _fails: int = field(default=0, repr=False)
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def available(self) -> bool:
-        if self._fails >= 5:
-            return False
-        if time.time() - self._last < self.rate_limit:
-            return False
-        return True
+        # Только счётчик сбоев. Интервал между запросами источник не делает
+        # недоступным — иначе запрос по второму тикеру считался бы сбоем.
+        return self._fails < 5
 
     def call(self, **kw) -> Any:
-        self._last = time.time()
+        # Разносим вызовы во времени, а не пропускаем их: под замком ждём
+        # свой слот, сам запрос выполняем уже параллельно.
+        with self._lock:
+            wait = self.rate_limit - (time.time() - self._last)
+            if wait > 0:
+                time.sleep(wait)
+            self._last = time.time()
         try:
             result = self.fetch(**kw)
             self._fails = 0
             return result
-        except Exception as e:
+        except Exception:
             self._fails += 1
             raise
 
