@@ -47,6 +47,44 @@ def _load():
     HTML = ui.read_text(encoding="utf-8")
 
 
+# Диапазоны графика: ключ -> (период yfinance, шаг свечей).
+# На 5 годах берём недельные свечи, иначе точек слишком много для линии.
+RANGES = {
+    "1m": ("1mo", "1d"), "3m": ("3mo", "1d"), "6m": ("6mo", "1d"),
+    "1y": ("1y",  "1d"), "5y": ("5y",  "1wk"),
+}
+
+
+def history_payload(ticker: str, rng: str) -> dict:
+    """Ряд цен закрытия для графика. Кэш — 15 минут на каждый диапазон."""
+    if rng not in RANGES:
+        rng = "6m"
+    from core.db import cache_get, cache_set
+    cached = cache_get(ticker, f"hist:{rng}", 900)
+    if cached:
+        return cached
+
+    period, interval = RANGES[rng]
+    try:
+        h = get_history(ticker, period=period, interval=interval)
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:200]}
+    if h is None or len(h) == 0:
+        return {"ok": False, "error": "нет исторических данных"}
+
+    pts = []
+    for idx, close in zip(h.index, h["Close"].values.tolist()):
+        if close is None or close != close:   # NaN
+            continue
+        pts.append({"d": str(idx)[:10], "c": round(float(close), 2)})
+    if not pts:
+        return {"ok": False, "error": "нет исторических данных"}
+
+    out = {"ok": True, "ticker": ticker, "range": rng, "points": pts}
+    cache_set(ticker, f"hist:{rng}", out)
+    return out
+
+
 def full_payload(ticker: str) -> dict:
     """Полный анализ одного тикера в виде JSON-совместимого словаря."""
     try:
@@ -152,6 +190,13 @@ class Handler(BaseHTTPRequestHandler):
             if not t:
                 return self._send(400, json.dumps({"error": "не указан тикер"}, ensure_ascii=False))
             return self._send(200, json.dumps(full_payload(t), ensure_ascii=False))
+
+        if u.path == "/api/history":
+            t = (q.get("t", [""])[0] or "").strip().upper()
+            if not t:
+                return self._send(400, json.dumps({"error": "не указан тикер"}, ensure_ascii=False))
+            r = (q.get("r", ["6m"])[0] or "6m").strip().lower()
+            return self._send(200, json.dumps(history_payload(t, r), ensure_ascii=False))
 
         if u.path in ("/api/add", "/api/remove"):
             t = (q.get("t", [""])[0] or "").strip().upper()
