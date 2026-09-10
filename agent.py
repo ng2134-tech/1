@@ -32,7 +32,7 @@ def main():
 
     init_db()
 
-    print(f"\U0001f4e1 Загружаю данные для {ticker}...")
+    print(f"📡 Загружаю данные для {ticker}...")
     try:
         data = get_data(ticker, use_cache=not args.no_cache)
     except ConnectionError as e:
@@ -47,19 +47,19 @@ def main():
 
     print(f"✅ {data['name']}")
 
-    print("\U0001f9ee Считаю скоринг...")
+    print("🧮 Считаю скоринг...")
     score = calculate_score(data)
 
-    print("\U0001f4d0 Считаю справедливую стоимость...")
+    print("📐 Считаю справедливую стоимость...")
     fv = calculate_fair_value(data)
 
     print("⚡ Формирую сигнал...")
     sig = generate_signal(data, score, fv)
 
-    print("\U0001f4c8 Считаю технические индикаторы...")
+    print("📈 Считаю технические индикаторы...")
     tech = calculate_technical(get_history(ticker))
 
-    print("\U0001f4f0 Загружаю новости...")
+    print("📰 Загружаю новости...")
     news = get_news(ticker)
 
     save_signal(ticker, score["total"], sig["signal"],

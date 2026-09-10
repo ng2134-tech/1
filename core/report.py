@@ -20,13 +20,13 @@ def generate_report(data, score, fv, sig, news, tech=None):
     high52 = data.get("week52_high")
 
     print("\n" + "=" * 62)
-    print(f"  \U0001f50d ИНВЕСТИЦИОННЫЙ АНАЛИЗ: {t}")
+    print(f"  🔍 ИНВЕСТИЦИОННЫЙ АНАЛИЗ: {t}")
     print(f"  {data['name']}")
     print(f"  Сектор: {data['sector']} | Отрасль: {data['industry']}")
     print(f"  Дата: {datetime.now().strftime('%d.%m.%Y %H:%M')}")
     print("=" * 62)
 
-    print("\n\U0001f4b0 ТЕКУЩАЯ ЦЕНА")
+    print("\n💰 ТЕКУЩАЯ ЦЕНА")
     print(f"  Цена:               ${fmt(price)}")
     if low52 and high52:
         print(f"  52-нед. диапазон:   ${fmt(low52)} — ${fmt(high52)}")
@@ -37,7 +37,7 @@ def generate_report(data, score, fv, sig, news, tech=None):
     if data.get("beta"):
         print(f"  Бета:               {fmt(data['beta'])}")
 
-    print("\n\U0001f4ca МУЛЬТИПЛИКАТОРЫ")
+    print("\n📊 МУЛЬТИПЛИКАТОРЫ")
     print(f"  {'Метрика':<14}{'Значение':>11}  {'Балл':>6}  Оценка")
     print("  " + "─" * 56)
     rows = [
@@ -56,13 +56,13 @@ def generate_report(data, score, fv, sig, news, tech=None):
         print(f"  {name:<14}{v:>11}  {str(pts):>6}  {sc[1]}")
 
     if tech and tech.get("available"):
-        print("\n\U0001f4c8 ТЕХНИЧЕСКИЙ АНАЛИЗ")
+        print("\n📈 ТЕХНИЧЕСКИЙ АНАЛИЗ")
         print(f"  RSI (14):           {tech['rsi']}  {tech['rsi_comment']}")
         print(f"  MACD:               {tech['macd']}  {tech['macd_trend']}")
         print(f"  Bollinger:          {tech['bb_low']} / {tech['bb_mid']} / {tech['bb_high']}")
         print(f"  Позиция:            {tech['bb_comment']}")
 
-    print("\n\U0001f3af СКОРИНГОВЫЙ БАЛЛ")
+    print("\n🎯 СКОРИНГОВЫЙ БАЛЛ")
     for lbl, k in [("P/E","pe"),("P/S","ps"),("EV/EBITDA","ev_ebitda"),("ROE","roe"),
                    ("ROA","roa"),("D/E","de"),("Маржа","margin"),("Short Interest","short")]:
         p = score[k][0]
@@ -71,15 +71,15 @@ def generate_report(data, score, fv, sig, news, tech=None):
     print(f"  {'ИТОГО:':<20}{score['total']} баллов")
     print(f"  РЕЙТИНГ:            {score['rating']}")
 
-    print("\n\U0001f4b0 FAIR VALUE")
+    print("\n💰 FAIR VALUE")
     print(f"  CCA (консенсус):    ${fmt(fv.get('cca'))}")
     print(f"  DCF (упрощённый):   ${fmt(fv.get('dcf'))}")
     print(f"  NAV (EV метод):     ${fmt(fv.get('nav'))}")
     print("  " + "─" * 30)
     print(f"  Fair Value (Base):  ${fmt(fv.get('fair_value'))}\n")
-    print(f"  \U0001f43b Bear:            ${fmt(fv.get('bear'))}")
+    print(f"  🐻 Bear:            ${fmt(fv.get('bear'))}")
     print(f"  ⚖️  Base:            ${fmt(fv.get('base'))}")
-    print(f"  \U0001f42e Bull:            ${fmt(fv.get('bull'))}\n")
+    print(f"  🐂 Bull:            ${fmt(fv.get('bull'))}\n")
     print(f"  Текущая цена:       ${fmt(price)}")
     up = fv.get("upside")
     print(f"  Апсайд до Base:     {'+' if up and up >= 0 else ''}{fmt(up,1) if up is not None else 'N/A'}%")
@@ -93,13 +93,13 @@ def generate_report(data, score, fv, sig, news, tech=None):
     if low52 and high52 and price:
         pos  = (price - low52) / (high52 - low52) * 100
         note = ""
-        if price > high52 * 0.95:  note = "  \U0001f4cd Вблизи максимума"
-        elif price < low52 * 1.05: note = "  \U0001f4cd Вблизи минимума"
+        if price > high52 * 0.95:  note = "  📍 Вблизи максимума"
+        elif price < low52 * 1.05: note = "  📍 Вблизи минимума"
         print(f"  52-нед. позиция:    {pos:.0f}%{note}")
     for w in sig.get("warnings", []):
         print(f"  {w}")
 
-    print("\n\U0001f4f0 ПОСЛЕДНИЕ НОВОСТИ")
+    print("\n📰 ПОСЛЕДНИЕ НОВОСТИ")
     if news:
         for it in news[:5]:
             d = (it.get("date") or "")[:16] or "—"

@@ -27,7 +27,7 @@ WATCHLIST_PATH = Path(__file__).parent / "data" / "watchlist.json"
 DEFAULT_WATCHLIST = ["AAPL", "MSFT", "LMT", "NVDA", "BTC-USD"]
 
 
-# ── вотчлист ──────────────────────────────────────────
+# ── вотчлист ────────────────────────────────────────────────────
 def load_watchlist() -> list:
     if WATCHLIST_PATH.exists():
         try:
@@ -63,12 +63,12 @@ def analyze(ticker: str) -> dict:
         return {"ticker": ticker, "ok": False, "error": str(e)[:60]}
 
 
-# ── дашборд ─────────────────────────────────────────
+# ── дашборд ─────────────────────────────────────────────────────
 def short_signal(sig: str) -> str:
     """Укорачивает сигнал до колонки таблицы."""
-    for key, out in [("СИЛЬНЫЙ ЛОНГ", "\U0001f4c8 СИЛ.ЛОНГ"), ("ПОТЕНЦИАЛЬНЫЙ ЛОНГ", "\U0001f4c8 ЛОНГ"),
-                     ("ДЕРЖАТЬ", "⚖️  ДЕРЖАТЬ"), ("СИЛЬНЫЙ ШОРТ", "\U0001f4c9 СИЛ.ШОРТ"),
-                     ("ПОТЕНЦ. ШОРТ", "\U0001f4c9 ШОРТ"), ("НАБЛЮДАТЬ", "\U0001f440 НАБЛЮД.")]:
+    for key, out in [("СИЛЬНЫЙ ЛОНГ", "📈 СИЛ.ЛОНГ"), ("ПОТЕНЦИАЛЬНЫЙ ЛОНГ", "📈 ЛОНГ"),
+                     ("ДЕРЖАТЬ", "⚖️  ДЕРЖАТЬ"), ("СИЛЬНЫЙ ШОРТ", "📉 СИЛ.ШОРТ"),
+                     ("ПОТЕНЦ. ШОРТ", "📉 ШОРТ"), ("НАБЛЮДАТЬ", "👀 НАБЛЮД.")]:
         if key in sig:
             return out
     return sig[:12]
@@ -76,7 +76,7 @@ def short_signal(sig: str) -> str:
 def print_dashboard(results: list):
     now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     print("\n" + "═" * 78)
-    print(f"  \U0001f50d ИНВЕСТИЦИОННЫЙ ТЕРМИНАЛ{' ' * 28}{now}")
+    print(f"  🔍 ИНВЕСТИЦИОННЫЙ ТЕРМИНАЛ{' ' * 28}{now}")
     print("═" * 78)
     print(f"  {'Тикер':<9}{'Цена':>11}{'Скоринг':>9}{'Fair Value':>13}{'Апсайд':>9}  Сигнал")
     print("─" * 78)
@@ -109,9 +109,9 @@ def print_dashboard(results: list):
     print("  Это аналитический инструмент, не инвестиционный совет.\n")
 
 
-# ── полный анализ одного тикера ─────────────────────────
+# ── полный анализ одного тикера ─────────────────────────────────
 def full_analysis(ticker: str):
-    print(f"\U0001f4e1 Загружаю данные для {ticker}...")
+    print(f"📡 Загружаю данные для {ticker}...")
     try:
         data = get_data(ticker)
     except ConnectionError as e:
@@ -122,14 +122,14 @@ def full_analysis(ticker: str):
         sys.exit(1)
 
     print(f"✅ {data['name']}")
-    print("\U0001f9ee Считаю скоринг...")
+    print("🧮 Считаю скоринг...")
     score = calculate_score(data)
-    print("\U0001f4d0 Считаю справедливую стоимость...")
+    print("📐 Считаю справедливую стоимость...")
     fv  = calculate_fair_value(data)
     sig = generate_signal(data, score, fv)
-    print("\U0001f4c8 Считаю технические индикаторы...")
+    print("📈 Считаю технические индикаторы...")
     tech = calculate_technical(get_history(ticker))
-    print("\U0001f4f0 Загружаю новости...")
+    print("📰 Загружаю новости...")
     news = get_news(ticker)
 
     save_signal(ticker, score["total"], sig["signal"], fv.get("upside"), data.get("price"))
@@ -169,7 +169,7 @@ def main():
         return
 
     # Дашборд: параллельная загрузка всех тикеров вотчлиста
-    print(f"\U0001f4e1 Загружаю {len(wl)} тикеров...")
+    print(f"📡 Загружаю {len(wl)} тикеров...")
     with ThreadPoolExecutor(max_workers=4) as ex:
         results = list(ex.map(analyze, wl))
     print_dashboard(results)
