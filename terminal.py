@@ -23,7 +23,8 @@ from core.report     import generate_report
 from core.db         import init_db, save_signal
 from core.registry   import REGISTRY
 
-WATCHLIST_PATH = Path(__file__).parent / "data" / "watchlist.json"
+from core.paths import data_file
+WATCHLIST_PATH = data_file("watchlist.json")
 DEFAULT_WATCHLIST = ["AAPL", "MSFT", "LMT", "NVDA", "BTC-USD"]
 
 
@@ -38,7 +39,7 @@ def load_watchlist() -> list:
     return list(DEFAULT_WATCHLIST)
 
 def save_watchlist(tickers: list):
-    WATCHLIST_PATH.parent.mkdir(exist_ok=True)
+    WATCHLIST_PATH.parent.mkdir(parents=True, exist_ok=True)
     # \n в конце — иначе каждый --add/--remove даёт лишний diff в git
     WATCHLIST_PATH.write_text(json.dumps(tickers, indent=2) + "\n", encoding="utf-8")
 
@@ -64,7 +65,7 @@ def analyze(ticker: str) -> dict:
         return {"ticker": ticker, "ok": False, "error": str(e)[:160]}
 
 
-# ── дашборд ─────────────────────────────────────────────────────
+# ── дашборд ──────────────────────────────────────────────────
 def short_signal(sig: str) -> str:
     """Укорачивает сигнал до колонки таблицы."""
     for key, out in [("СИЛЬНЫЙ ЛОНГ", "📈 СИЛ.ЛОНГ"), ("ПОТЕНЦИАЛЬНЫЙ ЛОНГ", "📈 ЛОНГ"),
@@ -110,7 +111,7 @@ def print_dashboard(results: list):
     print("  Это аналитический инструмент, не инвестиционный совет.\n")
 
 
-# ── полный анализ одного тикера ─────────────────────────────────
+# ── полный анализ одного тикера ───────────────────────────────
 def full_analysis(ticker: str):
     print(f"📡 Загружаю данные для {ticker}...")
     try:
