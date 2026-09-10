@@ -1,0 +1,6 @@
+{
+  "enable_technical": true,
+  "enable_news": true,
+  "cache_ttl_seconds": 900,
+  "learning_affects_signals": false
+}
