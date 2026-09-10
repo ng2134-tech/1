@@ -17,12 +17,26 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 NAME = "InvestTerminal"
 
-# Пакеты, которые PyInstaller не находит сам: yfinance грузит часть модулей
-# динамически, curl_cffi и certifi несут бинарники и файлы данных.
-COLLECT = ["yfinance", "curl_cffi", "certifi"]
+# PyInstaller ищет импорты статически, а yfinance половину зависимостей
+# подтягивает в рантайме. --collect-all берёт пакет целиком: и код, и
+# бинарники, и файлы данных — для curl_cffi (libcurl) и certifi (список
+# корневых сертификатов) без этого сборка падает уже при запуске.
+COLLECT = ["yfinance", "curl_cffi", "certifi", "peewee", "frozendict",
+           "multitasking", "protobuf", "websockets", "platformdirs"]
+
+# Модули, на которые нет ни одного явного import в нашем коде.
 HIDDEN  = ["core.paths", "core.data", "core.db", "core.registry", "core.scoring",
            "core.fair_value", "core.signals", "core.technical", "core.news",
-           "core.report", "terminal"]
+           "core.report", "terminal",
+           # тянутся изнутри yfinance/bs4
+           "bs4", "soupsieve", "dateutil", "dateutil.tz", "pytz", "six",
+           "_cffi_backend", "sqlite3"]
+
+# Тяжёлые пакеты, которые в сборке не нужны: они стоят в вашем Python,
+# PyInstaller утащил бы их за компанию и раздул exe на сотни мегабайт.
+EXCLUDE = ["streamlit", "altair", "plotly", "pydeck", "scikit-learn", "sklearn",
+           "scipy", "statsmodels", "arch", "matplotlib", "IPython", "jupyter",
+           "pyarrow", "tornado", "GitPython", "git", "PIL", "watchdog"]
 
 
 def need(mod: str, pypi: str) -> bool:
@@ -59,10 +73,16 @@ def main():
            "--onefile", "--console", "--name", NAME,
            # ui.html кладём в корень сборки: core/paths.py ищет его там
            "--add-data", f"{ui}{os.pathsep}."]
+    import importlib.util
     for pkg in COLLECT:
-        cmd += ["--collect-all", pkg]
+        # --collect-all на отсутствующий пакет обрывает сборку, а часть из
+        # них опциональна — берём только реально установленные.
+        if importlib.util.find_spec(pkg) is not None:
+            cmd += ["--collect-all", pkg]
     for mod in HIDDEN:
         cmd += ["--hidden-import", mod]
+    for mod in EXCLUDE:
+        cmd += ["--exclude-module", mod]
     cmd.append(str(HERE / "web.py"))
 
     print("\nСобираю (несколько минут, ~150 МБ на выходе)...\n")
